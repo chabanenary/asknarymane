@@ -9,6 +9,7 @@ class Settings(BaseSettings):
     chroma_host: str = "localhost"
     chroma_port: int = 8000
     documents_dir: str = "documents"
+    documents_fr_dir: str = "documents_fr"
     frontend_url: str = "http://localhost:3000"
     cors_origins: list[str] = ["http://localhost:3000"]
 

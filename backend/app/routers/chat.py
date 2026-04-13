@@ -6,9 +6,14 @@ from app.services.rag import retrieve_context
 
 router = APIRouter()
 
-SYSTEM_PROMPT = """Tu es l'assistant de Narymane Chabane. Narymane est une femme, utilise le féminin.
-Réponds aux questions des recruteurs sur son parcours. Sois concise et factuelle.
-Utilise UNIQUEMENT les informations ci-dessous. Si tu ne sais pas, dis-le."""
+SYSTEM_PROMPT = """You are the virtual assistant of Narymane Chabane. Narymane is a woman — always use feminine pronouns and adjectives when referring to her.
+You answer recruiters' questions about her professional background, education, skills, and projects.
+Rules:
+- Answer ONLY based on the provided context. Never make up information.
+- If the context does not contain the answer, say so honestly.
+- Reply in the same language as the user's question (French or English).
+- Be concise, professional, and factual.
+- Use markdown formatting (bold, lists) for readability."""
 
 
 class Message(BaseModel):
@@ -22,6 +27,11 @@ class ChatRequest(BaseModel):
 
 class ChatResponse(BaseModel):
     reply: str
+    sources: list[str] = []
+    prompt_tokens: int = 0
+    completion_tokens: int = 0
+    total_tokens: int = 0
+    duration_ms: int = 0
 
 
 @router.get("/health")
@@ -42,23 +52,31 @@ async def chat(request: ChatRequest):
                 break
 
         # Retrieve relevant context from ChromaDB
-        context = retrieve_context(last_user_msg) if last_user_msg else ""
+        rag_result = retrieve_context(last_user_msg) if last_user_msg else {"context": "", "sources": []}
+        context = rag_result["context"]
+        sources = rag_result["sources"]
 
-        # Inject context as a fake assistant-provided document, then re-ask
-        # This pattern works better with small models than system prompt injection
+        # Inject context as a fake assistant-provided document
         augmented_messages = [
             {"role": "system", "content": SYSTEM_PROMPT},
         ]
         if context:
             augmented_messages.append(
-                {"role": "user", "content": "Voici les informations sur Narymane :\n\n" + context}
+                {"role": "user", "content": "Here is the information about Narymane:\n\n" + context}
             )
             augmented_messages.append(
-                {"role": "assistant", "content": "Merci, j'ai bien pris note de ces informations sur Narymane. Je vais répondre aux questions en me basant uniquement sur ces données."}
+                {"role": "assistant", "content": "Understood. I will answer questions based only on the provided information about Narymane."}
             )
         augmented_messages.extend(messages)
 
-        reply = await chat_completion(augmented_messages)
-        return ChatResponse(reply=reply)
+        result = await chat_completion(augmented_messages)
+        return ChatResponse(
+            reply=result["content"],
+            sources=sources,
+            prompt_tokens=result["prompt_tokens"],
+            completion_tokens=result["completion_tokens"],
+            total_tokens=result["total_tokens"],
+            duration_ms=result["duration_ms"],
+        )
     except Exception as e:
         raise HTTPException(status_code=502, detail=f"LLM error: {e}")

@@ -26,6 +26,7 @@ services:
       - CHROMA_PORT=8000
     volumes:
       - ./documents:/app/documents:ro
+      - ./documents_fr:/app/documents_fr:ro
     depends_on:
       - ollama
       - chromadb

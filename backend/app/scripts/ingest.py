@@ -88,19 +88,27 @@ def ingest():
         embedding_function=OllamaEmbeddingFunction(),
     )
 
-    docs = read_markdown_files(settings.documents_dir)
-    print(f"Found {len(docs)} documents")
+    # Ingest both English and French documents
+    sources = [
+        (settings.documents_dir, "en"),
+        (settings.documents_fr_dir, "fr"),
+    ]
 
     all_chunks = []
     all_metadatas = []
     all_ids = []
 
-    for doc in docs:
-        sections = chunk_by_sections(doc["content"], doc["source"], doc["category"])
-        for i, section in enumerate(sections):
-            all_chunks.append(section["text"])
-            all_metadatas.append(section["metadata"])
-            all_ids.append(f"{doc['source']}_{i}")
+    for docs_dir, lang in sources:
+        docs = read_markdown_files(docs_dir)
+        print(f"Found {len(docs)} documents ({lang})")
+        for doc in docs:
+            sections = chunk_by_sections(doc["content"], doc["source"], doc["category"])
+            for i, section in enumerate(sections):
+                all_chunks.append(section["text"])
+                meta = section["metadata"]
+                meta["lang"] = lang
+                all_metadatas.append(meta)
+                all_ids.append(f"{lang}_{doc['source']}_{i}")
 
     print(f"Ingesting {len(all_chunks)} chunks into ChromaDB...")
 
