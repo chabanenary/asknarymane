@@ -4,12 +4,15 @@
 - Nom complet : Narymane Chabane
 - Date de naissance : 1er novembre 1982
 - Née en : Algérie
+- Genre: Feminin
+- Nationalité: Française | Algerienne
 - Lieu de résidence : Sanary-sur-Mer, Var, Sud de la France
 - Email : chabanenarymane@gmail.com
-- Téléphone : +33 6 98 24 42 55
 - GitHub : github.com/chabanenary
 - Blog : Dev.to (chabanenary)
+- LinkedIn: https://www.linkedin.com/in/narymane-chabane/
 - Langues parlées : Français (langue maternelle), Arabe (langue maternelle), Anglais (courant)
+
 
 ## Titre professionnel
 Ingénieure Linux Embarqué (R&D) | IoT & IA Edge | Contributrice Open Source

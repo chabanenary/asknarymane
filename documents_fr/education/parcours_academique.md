@@ -21,7 +21,6 @@
 - Spécialisation choisie : électronique et télécommunications
 - Diplômée avec Mention Très Bien
 - Projet de fin d'études : conception et implémentation d'un serveur DHCP sur System-on-Chip (SoC), avec modélisation UML complète, traduction en C, puis en VHDL pour la synthèse matérielle — un projet en systèmes embarqués complet, considéré très innovant pour l'époque
-- Le major de sa promotion dirige actuellement un centre de recherche prestigieux en IA au Luxembourg — illustrant le calibre de la promotion
 
 ## Master — Télécom Paris (2006)
 - École Nationale Supérieure des Télécommunications, l'une des meilleures écoles d'ingénieurs de France (aujourd'hui partie de l'Institut Polytechnique de Paris)

@@ -8,8 +8,14 @@ type Message = {
   role: "user" | "assistant";
   content: string;
   sources?: string[];
+  model?: string;
   tokens?: number;
   durationMs?: number;
+};
+
+type ModelOption = {
+  id: string;
+  name: string;
 };
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
@@ -24,7 +30,22 @@ export default function ChatWidget() {
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [provider, setProvider] = useState("");
+  const [models, setModels] = useState<ModelOption[]>([]);
+  const [selectedModel, setSelectedModel] = useState("");
   const bottomRef = useRef<HTMLDivElement>(null);
+
+  // Fetch provider config on mount
+  useEffect(() => {
+    fetch(`${API_URL}/config`)
+      .then((res) => res.json())
+      .then((data) => {
+        setProvider(data.provider);
+        setModels(data.models || []);
+        setSelectedModel(data.current_model || "");
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -42,10 +63,15 @@ export default function ChatWidget() {
     setLoading(true);
 
     try {
+      const body: Record<string, unknown> = { messages: updated };
+      if (provider === "groq" && selectedModel) {
+        body.model = selectedModel;
+      }
+
       const res = await fetch(`${API_URL}/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: updated }),
+        body: JSON.stringify(body),
       });
 
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -57,6 +83,7 @@ export default function ChatWidget() {
           role: "assistant",
           content: data.reply,
           sources: data.sources,
+          model: data.model,
           tokens: data.total_tokens,
           durationMs: data.duration_ms,
         },
@@ -78,16 +105,33 @@ export default function ChatWidget() {
     <div className="flex flex-col h-full max-w-4xl w-full mx-auto">
       {/* Header */}
       <div className="px-6 pt-8 pb-4">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-lg shadow-md">
-            N
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-lg shadow-md">
+              N
+            </div>
+            <div>
+              <h1 className="text-xl font-bold text-slate-800">Ask Narymane</h1>
+              <p className="text-sm text-slate-500">
+                Ingénieure Systèmes Embarqués Linux &amp; IA/ML
+              </p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-xl font-bold text-slate-800">Ask Narymane</h1>
-            <p className="text-sm text-slate-500">
-              Ingénieure Systèmes Embarqués Linux &amp; IA/ML
-            </p>
-          </div>
+
+          {/* Model selector - only for Groq */}
+          {provider === "groq" && models.length > 0 && (
+            <select
+              value={selectedModel}
+              onChange={(e) => setSelectedModel(e.target.value)}
+              className="text-xs bg-white border border-slate-200 rounded-lg px-3 py-2 text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm cursor-pointer"
+            >
+              {models.map((m) => (
+                <option key={m.id} value={m.id}>
+                  {m.name}
+                </option>
+              ))}
+            </select>
+          )}
         </div>
       </div>
 
@@ -100,6 +144,7 @@ export default function ChatWidget() {
               role={msg.role}
               content={msg.content}
               sources={msg.sources}
+              model={msg.model}
               tokens={msg.tokens}
               durationMs={msg.durationMs}
             />

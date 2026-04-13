@@ -6,7 +6,7 @@ Chatbot IA destiné aux recruteurs pour explorer le parcours professionnel et la
 
 - **Backend** : Python / FastAPI
 - **Frontend** : Next.js / React / Tailwind CSS
-- **LLM** : Ollama (qwen2:1.5b en dev)
+- **LLM** : Groq API (Llama 3.3 70B) en prod / Ollama (qwen2:1.5b) en dev local
 - **Embeddings** : nomic-embed-text via Ollama
 - **Vector DB** : ChromaDB
 - **Conteneurisation** : Docker Compose (Podman compatible)
@@ -15,18 +15,22 @@ Chatbot IA destiné aux recruteurs pour explorer le parcours professionnel et la
 
 ```
 Frontend (Next.js :3000)
-    │
-    ▼
+    |
+    v
 Backend (FastAPI :8080)
-    ├──→ ChromaDB (:8000)     — stockage des vecteurs
-    └──→ Ollama (:11434)      — LLM (qwen2:1.5b) + embeddings (nomic-embed-text)
+    |---> ChromaDB (:8000)       -- stockage des vecteurs
+    |---> Ollama (:11434)        -- embeddings (nomic-embed-text)
+    +---> LLM Provider           -- configurable :
+          - Groq API (cloud)        llama-3.3-70b-versatile (defaut)
+          - Ollama (local)          qwen2:1.5b
 ```
 
 Le backend utilise un pipeline **RAG** (Retrieval-Augmented Generation) :
 1. La question du recruteur est convertie en vecteur via Ollama (nomic-embed-text)
-2. Les sections les plus pertinentes du profil sont récupérées dans ChromaDB
+2. Les sections les plus pertinentes du profil sont récupérées dans ChromaDB (FR + EN)
 3. Le contexte est injecté dans le prompt envoyé au LLM
 4. Le LLM génère une réponse factuelle basée sur les données du profil
+5. Le chatbot répond dans la langue de la question (français ou anglais)
 
 ## Prérequis
 
@@ -42,21 +46,60 @@ cd asknarymane
 cp .env.example .env
 ```
 
+## Configuration du LLM
+
+Le provider LLM est configurable via la variable `LLM_PROVIDER` dans `.env` :
+
+### Option 1 — Groq API (recommandé)
+
+Modèle cloud performant, gratuit (30 req/min). Créer une clé sur [console.groq.com](https://console.groq.com).
+
+```env
+LLM_PROVIDER=groq
+GROQ_API_KEY=gsk_votre_clé_ici
+GROQ_MODEL=llama-3.3-70b-versatile
+```
+
+Modèles disponibles via le sélecteur dans l'interface :
+- `llama-3.3-70b-versatile` (par défaut, le plus performant)
+- `qwen/qwen3-32b`
+- `meta-llama/llama-4-scout-17b-16e-instruct`
+- `llama-3.1-8b-instant`
+
+### Option 2 — Ollama (dev local)
+
+Modèle local, pas besoin de clé API ni d'internet. Plus lent et moins performant.
+
+```env
+LLM_PROVIDER=ollama
+OLLAMA_BASE_URL=http://localhost:11434
+OLLAMA_MODEL=qwen2:1.5b
+```
+
 ## Lancement
 
 ```bash
 # Démarrer les services (Ollama + ChromaDB + Backend + Frontend)
 podman compose up --build -d
 
-# Télécharger les modèles (première fois uniquement)
-podman compose exec ollama ollama pull qwen2:1.5b
+# Télécharger le modèle d'embedding (toujours nécessaire)
 podman compose exec ollama ollama pull nomic-embed-text
+
+# Télécharger le modèle LLM local (uniquement si LLM_PROVIDER=ollama)
+podman compose exec ollama ollama pull qwen2:1.5b
 
 # Ingérer les documents du profil dans ChromaDB
 podman compose exec backend python -m app.scripts.ingest
 ```
 
 Le frontend est accessible sur **http://localhost:3000** et l'API sur **http://localhost:8080**.
+
+## Tests
+
+```bash
+podman compose exec backend pip install pytest pytest-asyncio -q
+podman compose exec backend pytest tests/ -v
+```
 
 ## Arrêt
 
@@ -70,13 +113,15 @@ podman compose down
 asknarymane/
 ├── backend/              # API FastAPI
 │   ├── app/
-│   │   ├── routers/      # Endpoints (chat, health)
-│   │   ├── services/     # LLM, RAG, embeddings
+│   │   ├── routers/      # Endpoints (chat, health, config)
+│   │   ├── services/     # LLM (Ollama/Groq), RAG, embeddings
 │   │   └── scripts/      # Ingestion des documents
+│   ├── tests/            # Tests endpoints (pytest)
 │   └── Dockerfile
 ├── frontend/             # Interface chat Next.js
 │   └── Dockerfile
-├── documents/            # Profil Narymane (markdown)
+├── documents/            # Profil Narymane en anglais (markdown)
+├── documents_fr/         # Profil Narymane en français (markdown)
 │   ├── cv/               # Profil, aspirations
 │   ├── experience/       # Expériences pro
 │   ├── education/        # Parcours académique
@@ -90,7 +135,9 @@ asknarymane/
 
 ## Documents du profil
 
-Les fichiers markdown dans `documents/` constituent la base de connaissances du chatbot. Ils sont découpés par sections et indexés dans ChromaDB lors de l'ingestion. Pour mettre à jour le profil, modifier les fichiers puis relancer :
+La base de connaissances du chatbot est composée de fichiers markdown dans `documents/` (anglais) et `documents_fr/` (français). Les deux versions sont indexées dans ChromaDB pour un matching optimal quelle que soit la langue de la question.
+
+Pour mettre à jour le profil, modifier les fichiers puis relancer :
 
 ```bash
 podman compose exec backend python -m app.scripts.ingest

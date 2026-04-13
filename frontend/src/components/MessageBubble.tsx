@@ -6,6 +6,7 @@ type Props = {
   role: "user" | "assistant";
   content: string;
   sources?: string[];
+  model?: string;
   tokens?: number;
   durationMs?: number;
 };
@@ -13,6 +14,7 @@ type Props = {
 export default function MessageBubble({
   role,
   content,
+  model,
   sources,
   tokens,
   durationMs,
@@ -36,8 +38,16 @@ export default function MessageBubble({
               <Markdown>{content}</Markdown>
             </div>
 
-            {(sources?.length || tokens || durationMs) ? (
+            {(sources?.length || model || tokens || durationMs) ? (
               <div className="mt-3 pt-3 border-t border-slate-100 flex flex-wrap gap-x-4 gap-y-1.5 text-xs text-slate-400">
+                {model && (
+                  <div className="flex items-center gap-1.5">
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                    <span>{model}</span>
+                  </div>
+                )}
                 {sources && sources.length > 0 && (
                   <div className="flex items-center gap-1.5">
                     <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

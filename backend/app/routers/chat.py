@@ -1,8 +1,16 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
+from app.config import settings
 from app.services.llm import chat_completion
 from app.services.rag import retrieve_context
+
+GROQ_MODELS = [
+    {"id": "llama-3.3-70b-versatile", "name": "Llama 3.3 70B"},
+    {"id": "qwen/qwen3-32b", "name": "Qwen 3 32B"},
+    {"id": "meta-llama/llama-4-scout-17b-16e-instruct", "name": "Llama 4 Scout 17B"},
+    {"id": "llama-3.1-8b-instant", "name": "Llama 3.1 8B"},
+]
 
 router = APIRouter()
 
@@ -23,11 +31,13 @@ class Message(BaseModel):
 
 class ChatRequest(BaseModel):
     messages: list[Message]
+    model: str | None = None
 
 
 class ChatResponse(BaseModel):
     reply: str
     sources: list[str] = []
+    model: str = ""
     prompt_tokens: int = 0
     completion_tokens: int = 0
     total_tokens: int = 0
@@ -37,6 +47,16 @@ class ChatResponse(BaseModel):
 @router.get("/health")
 async def health():
     return {"status": "ok"}
+
+
+@router.get("/config")
+async def get_config():
+    """Return provider info and available models."""
+    return {
+        "provider": settings.llm_provider,
+        "models": GROQ_MODELS if settings.llm_provider == "groq" else [],
+        "current_model": settings.groq_model if settings.llm_provider == "groq" else settings.ollama_model,
+    }
 
 
 @router.post("/chat", response_model=ChatResponse)
@@ -67,12 +87,15 @@ async def chat(request: ChatRequest):
             augmented_messages.append(
                 {"role": "assistant", "content": "Understood. I will answer questions based only on the provided information about Narymane."}
             )
-        augmented_messages.extend(messages)
+        # Only send the last user message to avoid language contamination from history
+        if last_user_msg:
+            augmented_messages.append({"role": "user", "content": last_user_msg})
 
-        result = await chat_completion(augmented_messages)
+        result = await chat_completion(augmented_messages, model_override=request.model)
         return ChatResponse(
             reply=result["content"],
             sources=sources,
+            model=result.get("model", ""),
             prompt_tokens=result["prompt_tokens"],
             completion_tokens=result["completion_tokens"],
             total_tokens=result["total_tokens"],
