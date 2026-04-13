@@ -6,6 +6,9 @@ class Settings(BaseSettings):
     ollama_model: str = "mistral"
     api_host: str = "0.0.0.0"
     api_port: int = 8080
+    chroma_host: str = "localhost"
+    chroma_port: int = 8000
+    documents_dir: str = "documents"
     frontend_url: str = "http://localhost:3000"
     cors_origins: list[str] = ["http://localhost:3000"]
 

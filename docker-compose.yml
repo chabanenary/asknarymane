@@ -7,6 +7,13 @@ services:
       - ollama_data:/root/.ollama
     mem_limit: 8g
 
+  chromadb:
+    image: chromadb/chroma:latest
+    ports:
+      - "8000:8000"
+    volumes:
+      - chroma_data:/chroma/chroma
+
   backend:
     image: asknarymane-backend
     build: ./backend
@@ -15,8 +22,13 @@ services:
     env_file: .env
     environment:
       - OLLAMA_BASE_URL=http://ollama:11434
+      - CHROMA_HOST=chromadb
+      - CHROMA_PORT=8000
+    volumes:
+      - ./documents:/app/documents:ro
     depends_on:
       - ollama
+      - chromadb
 
   frontend:
     image: asknarymane-frontend
@@ -30,3 +42,4 @@ services:
 
 volumes:
   ollama_data:
+  chroma_data:
