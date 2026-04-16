@@ -1,4 +1,4 @@
-# Project — AskNarymane (in progress)
+# Project — AI / AskNarymane (in progress)
 
 ## Overview
 AskNarymane is a RAG-powered (Retrieval Augmented Generation) chatbot that answers questions about Narymane's professional profile, projects, and experience. It is designed as a portfolio showcase and a demonstration of LLM deployment and RAG implementation skills.
@@ -18,7 +18,7 @@ Website (planned): https://asknarymane.dev
 The chatbot is trained on Narymane's own documents:
 - CV and professional profile
 - Detailed experience at Ekinops/OneAccess (2007–2020)
-- Project descriptions: GalleryKeeper, Edge AI on Jetson Nano, ML Serving APIs, IoT demonstrator
+- Project descriptions: GalleryKeeper, Edge AI on Jetson Nano, ML Serving APIs
 - Education: Polytechnique d'Alger, Télécom Paris
 - Technical skills and competencies
 - Blog posts and community contributions

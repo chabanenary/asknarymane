@@ -1,6 +1,8 @@
-# Professional Experience — Ekinops / OneAccess (2007–2020)
+# Professional Experience — Narymane Chabane
 
-## Company
+Narymane worked at the following companies: Ekinops / OneAccess (2007–2020), Eolices / Service company (2007–2011), STMicroelectronics (2006–2007, internship).
+
+## Main company: Ekinops / OneAccess (2007–2020)
 Ekinops (formerly OneAccess Networks) is a leading French telecom equipment manufacturer, producing enterprise and carrier-grade CPE routers, residential gateways, Wi-Fi/4G repeaters, and SFP-based network devices. Products are deployed by tier-1 telecom operators including Orange, SFR, and Telefonica, serving tens of thousands of end customers.
 
 ## Role

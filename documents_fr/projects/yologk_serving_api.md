@@ -1,4 +1,4 @@
-# Projet — YoloGK Serving API (Déploiement ML multi-plateforme)
+# Projet — IA / YoloGK Serving API (Déploiement ML multi-plateforme)
 
 ## Présentation
 Une suite de projets démontrant le déploiement multi-plateforme du modèle YOLO11 GalleryKeeper entraîné par Narymane, via une API REST. Le même modèle et le même code applicatif sont déployés sur trois environnements différents, illustrant les bonnes pratiques MLOps.

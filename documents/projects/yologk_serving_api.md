@@ -1,4 +1,4 @@
-# Project — YoloGK Serving API (Multi-Platform ML Deployment)
+# Project — AI/ YoloGK Serving API (Multi-Platform ML Deployment)
 
 ## Overview
 A suite of projects demonstrating multi-platform deployment of Narymane's custom-trained YOLO11 GalleryKeeper model via a REST API. The same model and application code are deployed across three different environments, showcasing MLOps best practices.

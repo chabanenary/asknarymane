@@ -1,4 +1,4 @@
-# Projet — AskNarymane (en cours)
+# Projet — IA / AskNarymane (en cours)
 
 ## Présentation
 AskNarymane est un chatbot alimenté par RAG (Retrieval Augmented Generation) qui répond aux questions sur le profil professionnel, les projets et l'expérience de Narymane. Il est conçu comme une vitrine portfolio et une démonstration de compétences en déploiement LLM et implémentation RAG.
@@ -18,7 +18,7 @@ Site web (prévu) : https://asknarymane.dev
 Le chatbot est entraîné sur les propres documents de Narymane :
 - CV et profil professionnel
 - Expérience détaillée chez Ekinops/OneAccess (2007–2020)
-- Descriptions de projets : GalleryKeeper, IA Edge sur Jetson Nano, APIs ML Serving, démonstrateur IoT
+- Descriptions de projets : GalleryKeeper, IA Edge sur Jetson Nano, APIs ML Serving
 - Formation : Polytechnique d'Alger, Télécom Paris
 - Compétences techniques
 - Articles de blog et contributions communautaires

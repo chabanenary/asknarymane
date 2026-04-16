@@ -1,4 +1,4 @@
-# Project — GalleryKeeper App
+# Project — AI / GalleryKeeper App
 
 ## Overview
 GalleryKeeper is an open-source Android application that detects, classifies, and organizes sensitive ("delicate") photos in the user's gallery. It uses a custom-trained YOLO11 AI model running entirely on-device — no internet connection required, no photos are ever uploaded to the cloud.

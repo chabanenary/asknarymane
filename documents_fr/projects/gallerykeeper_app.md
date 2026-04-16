@@ -1,4 +1,4 @@
-# Projet — GalleryKeeper App
+# Projet — IA / GalleryKeeper App
 
 ## Présentation
 GalleryKeeper est une application Android open source qui détecte, classifie et organise les photos sensibles (« délicates ») dans la galerie de l'utilisateur. Elle utilise un modèle IA YOLO11 entraîné sur mesure, fonctionnant entièrement sur l'appareil — aucune connexion internet requise, aucune photo n'est jamais envoyée vers le cloud.
