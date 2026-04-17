@@ -18,19 +18,29 @@ Frontend (Next.js :3000)
     |
     v
 Backend (FastAPI :8080)
-    |---> ChromaDB (:8000)       -- stockage des vecteurs
+    |---> Agent routeur           -- decide RAG, GitHub, ou les deux
+    |       |---> ChromaDB (:8000)    -- RAG (profil statique)
+    |       +---> GitHub API          -- repos temps reel
     |---> Ollama (:11434)        -- embeddings (nomic-embed-text)
     +---> LLM Provider           -- configurable :
           - Groq API (cloud)        llama-3.3-70b-versatile (defaut)
           - Ollama (local)          qwen2:1.5b
 ```
 
-Le backend utilise un pipeline **RAG** (Retrieval-Augmented Generation) :
+Le backend utilise un **agent routeur** qui combine deux sources de données :
+
+**RAG** (Retrieval-Augmented Generation) — profil statique :
 1. La question du recruteur est convertie en vecteur via Ollama (nomic-embed-text)
 2. Les sections les plus pertinentes du profil sont récupérées dans ChromaDB (FR + EN)
 3. Le contexte est injecté dans le prompt envoyé au LLM
-4. Le LLM génère une réponse factuelle basée sur les données du profil
-5. Le chatbot répond dans la langue de la question (français ou anglais)
+
+**Agent GitHub** — données temps réel :
+- Quand la question concerne GitHub (repos, code, contributions), l'agent interroge l'API GitHub en temps réel
+- Les repos publics de [github.com/chabanenary](https://github.com/chabanenary) sont récupérés avec langages, dates, descriptions
+- Les liens sont cliquables dans la réponse
+- Cache de 10 minutes pour éviter le rate limiting
+
+Le chatbot répond dans la langue de la question (français ou anglais).
 
 ## Prérequis
 
@@ -114,7 +124,7 @@ asknarymane/
 ├── backend/              # API FastAPI
 │   ├── app/
 │   │   ├── routers/      # Endpoints (chat, health, config)
-│   │   ├── services/     # LLM (Ollama/Groq), RAG, embeddings
+│   │   ├── services/     # LLM (Ollama/Groq), RAG, GitHub, agent routeur, embeddings
 │   │   └── scripts/      # Ingestion des documents
 │   ├── tests/            # Tests endpoints (pytest)
 │   └── Dockerfile

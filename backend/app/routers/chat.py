@@ -3,7 +3,7 @@ from pydantic import BaseModel
 
 from app.config import settings
 from app.services.llm import chat_completion
-from app.services.rag import retrieve_context
+from app.services.agent import resolve_query
 
 GROQ_MODELS = [
     {"id": "llama-3.3-70b-versatile", "name": "Llama 3.3 70B"},
@@ -16,12 +16,16 @@ router = APIRouter()
 
 SYSTEM_PROMPT = """You are the virtual assistant of Narymane Chabane. Narymane is a woman — always use feminine pronouns and adjectives when referring to her.
 You answer recruiters' questions about her professional background, education, skills, and projects.
+You have access to two data sources:
+- Her professional profile (CV, experience, education, projects)
+- Her GitHub repositories in real-time (github.com/chabanenary)
 Rules:
 - Answer ONLY based on the provided context. Never make up information.
 - If the context does not contain the answer, say so honestly.
 - Reply in the same language as the user's question (French or English).
 - Be concise, professional, and factual.
-- Use markdown formatting (bold, lists) for readability."""
+- Use markdown formatting (bold, lists) for readability.
+- When showing GitHub data, mention that it is real-time information."""
 
 
 class Message(BaseModel):
@@ -71,10 +75,10 @@ async def chat(request: ChatRequest):
                 last_user_msg = msg["content"]
                 break
 
-        # Retrieve relevant context from ChromaDB
-        rag_result = retrieve_context(last_user_msg) if last_user_msg else {"context": "", "sources": []}
-        context = rag_result["context"]
-        sources = rag_result["sources"]
+        # Resolve query via agent (RAG + GitHub)
+        agent_result = resolve_query(last_user_msg) if last_user_msg else {"context": "", "sources": []}
+        context = agent_result["context"]
+        sources = agent_result["sources"]
 
         # Inject context as a fake assistant-provided document
         augmented_messages = [

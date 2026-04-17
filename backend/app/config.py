@@ -21,6 +21,10 @@ class Settings(BaseSettings):
     chroma_host: str = "localhost"
     chroma_port: int = 8000
 
+    # GitHub
+    github_username: str = "chabanenary"
+    github_cache_ttl: int = 600
+
     # Documents
     documents_dir: str = "documents"
     documents_fr_dir: str = "documents_fr"

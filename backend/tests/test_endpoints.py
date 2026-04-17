@@ -49,7 +49,7 @@ def test_config_ollama(mock_settings):
 # --- Chat ---
 
 
-@patch("app.routers.chat.retrieve_context")
+@patch("app.routers.chat.resolve_query")
 @patch("app.routers.chat.chat_completion", new_callable=AsyncMock)
 def test_chat_success(mock_llm, mock_rag):
     mock_rag.return_value = {
@@ -78,7 +78,7 @@ def test_chat_success(mock_llm, mock_rag):
     assert data["duration_ms"] == 500
 
 
-@patch("app.routers.chat.retrieve_context")
+@patch("app.routers.chat.resolve_query")
 @patch("app.routers.chat.chat_completion", new_callable=AsyncMock)
 def test_chat_with_model_override(mock_llm, mock_rag):
     mock_rag.return_value = {"context": "Some context", "sources": []}
@@ -105,7 +105,7 @@ def test_chat_with_model_override(mock_llm, mock_rag):
     assert call_kwargs.kwargs["model_override"] == "llama-3.1-8b-instant"
 
 
-@patch("app.routers.chat.retrieve_context")
+@patch("app.routers.chat.resolve_query")
 @patch("app.routers.chat.chat_completion", new_callable=AsyncMock)
 def test_chat_empty_context(mock_llm, mock_rag):
     mock_rag.return_value = {"context": "", "sources": []}
@@ -126,7 +126,7 @@ def test_chat_empty_context(mock_llm, mock_rag):
     assert response.json()["sources"] == []
 
 
-@patch("app.routers.chat.retrieve_context")
+@patch("app.routers.chat.resolve_query")
 @patch("app.routers.chat.chat_completion", new_callable=AsyncMock)
 def test_chat_llm_error(mock_llm, mock_rag):
     mock_rag.return_value = {"context": "Some context", "sources": []}
@@ -145,7 +145,7 @@ def test_chat_invalid_request():
     assert response.status_code == 422
 
 
-@patch("app.routers.chat.retrieve_context")
+@patch("app.routers.chat.resolve_query")
 @patch("app.routers.chat.chat_completion", new_callable=AsyncMock)
 def test_chat_empty_messages(mock_llm, mock_rag):
     mock_rag.return_value = {"context": "", "sources": []}

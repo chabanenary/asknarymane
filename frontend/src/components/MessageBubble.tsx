@@ -34,8 +34,18 @@ export default function MessageBubble({
           <p className="text-sm leading-relaxed">{content}</p>
         ) : (
           <>
-            <div className="prose prose-sm prose-slate max-w-none prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-0.5 prose-headings:mt-3 prose-headings:mb-1 prose-strong:text-slate-900">
-              <Markdown>{content}</Markdown>
+            <div className="prose prose-sm prose-slate max-w-none prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-0.5 prose-headings:mt-3 prose-headings:mb-1 prose-strong:text-slate-900 prose-a:text-blue-600 prose-a:underline hover:prose-a:text-blue-800">
+              <Markdown
+                components={{
+                  a: ({ href, children }) => (
+                    <a href={href} target="_blank" rel="noopener noreferrer">
+                      {children}
+                    </a>
+                  ),
+                }}
+              >
+                {content}
+              </Markdown>
             </div>
 
             {(sources?.length || model || tokens || durationMs) ? (
