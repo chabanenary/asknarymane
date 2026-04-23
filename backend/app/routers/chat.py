@@ -75,8 +75,18 @@ async def chat(request: ChatRequest):
                 last_user_msg = msg["content"]
                 break
 
+        # Build enriched query: if the last message is short or contains
+        # references (ça, this, these), combine with previous exchange for better retrieval
+        search_query = last_user_msg
+        if last_user_msg and len(messages) >= 3:
+            prev_messages = []
+            for msg in messages[-4:-1]:  # last 2 messages before current
+                prev_messages.append(msg["content"])
+            if any(ref in last_user_msg.lower() for ref in ["ça", "cela", "this", "these", "that", "it", "les", "ces", "c'est"]):
+                search_query = " ".join(prev_messages[-2:]) + " " + last_user_msg
+
         # Resolve query via agent (RAG + GitHub)
-        agent_result = resolve_query(last_user_msg) if last_user_msg else {"context": "", "sources": []}
+        agent_result = resolve_query(search_query) if last_user_msg else {"context": "", "sources": []}
         context = agent_result["context"]
         sources = agent_result["sources"]
 
@@ -91,9 +101,10 @@ async def chat(request: ChatRequest):
             augmented_messages.append(
                 {"role": "assistant", "content": "Understood. I will answer questions based only on the provided information about Narymane."}
             )
-        # Only send the last user message to avoid language contamination from history
-        if last_user_msg:
-            augmented_messages.append({"role": "user", "content": last_user_msg})
+        # Send recent conversation history (last 3 exchanges) for context continuity
+        # This allows the LLM to understand references like "ça", "this", etc.
+        recent = messages[-6:]  # last 3 exchanges (user+assistant pairs)
+        augmented_messages.extend(recent)
 
         result = await chat_completion(augmented_messages, model_override=request.model)
         return ChatResponse(
