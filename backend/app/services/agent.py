@@ -3,6 +3,7 @@
 from app.services.rag import retrieve_context
 from app.services.github import get_github_context
 from app.services.contact import get_contact_context
+from app.services.matching import is_job_matching_query, get_matching_context
 
 GITHUB_KEYWORDS = [
     # French
@@ -47,6 +48,12 @@ def resolve_query(query: str) -> dict:
 
     use_github = is_github_query(query)
     use_contact = is_contact_query(query)
+    use_matching = is_job_matching_query(query)
+
+    # Job matching takes priority — it builds its own full context
+    if use_matching:
+        match_result = get_matching_context(query)
+        return match_result
 
     # Always query RAG for profile context (unless pure contact query)
     if not use_contact or use_github:

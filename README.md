@@ -18,16 +18,17 @@ Frontend (Next.js :3000)
     |
     v
 Backend (FastAPI :8080)
-    |---> Agent routeur           -- decide RAG, GitHub, Contact, ou combiné
+    |---> Agent routeur           -- decide RAG, GitHub, Contact, Matching, ou combiné
     |       |---> ChromaDB (:8000)    -- RAG (profil statique)
-    |       +---> GitHub API          -- repos temps reel
+    |       |---> GitHub API          -- repos temps reel
+    |       +---> Job Matching        -- comparaison profil vs fiche de poste
     |---> Ollama (:11434)        -- embeddings (nomic-embed-text)
     +---> LLM Provider           -- configurable :
           - Groq API (cloud)        llama-3.3-70b-versatile (defaut)
           - Ollama (local)          qwen2:1.5b
 ```
 
-Le backend utilise un **agent routeur** qui combine deux sources de données :
+Le backend utilise un **agent routeur** qui combine plusieurs sources de données :
 
 **RAG** (Retrieval-Augmented Generation) — profil statique :
 1. La question du recruteur est convertie en vecteur via Ollama (nomic-embed-text)
@@ -44,6 +45,12 @@ Le backend utilise un **agent routeur** qui combine deux sources de données :
 - Quand le recruteur demande à contacter Narymane, l'agent génère un lien mailto cliquable avec un brouillon d'email pré-rempli (sujet + corps)
 - Le lien LinkedIn est aussi fourni
 - Le recruteur clique → son client mail s'ouvre avec le brouillon prêt à envoyer
+
+**Agent Matching** — comparaison profil vs fiche de poste :
+- Le recruteur colle une fiche de poste dans le chat
+- L'agent récupère l'intégralité du profil de Narymane via le RAG
+- Le LLM génère un rapport structuré : score de compatibilité, points forts, compétences transférables, écarts identifiés, recommandation
+- Détection automatique des fiches de poste (mots-clés : "missions", "compétences requises", "CDI", etc.)
 
 Le chatbot répond dans la langue de la question (français ou anglais).
 
@@ -129,7 +136,7 @@ asknarymane/
 ├── backend/              # API FastAPI
 │   ├── app/
 │   │   ├── routers/      # Endpoints (chat, health, config)
-│   │   ├── services/     # LLM (Ollama/Groq), RAG, GitHub, agent routeur, embeddings
+│   │   ├── services/     # LLM, RAG, GitHub, Contact, Matching, agent routeur
 │   │   └── scripts/      # Ingestion des documents
 │   ├── tests/            # Tests endpoints (pytest)
 │   └── Dockerfile

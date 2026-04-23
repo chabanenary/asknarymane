@@ -6,6 +6,7 @@ import pytest
 
 from app.services.github import format_repos_context
 from app.services.contact import get_contact_context
+from app.services.matching import is_job_matching_query
 from app.services.agent import is_github_query, is_contact_query, resolve_query
 
 
@@ -158,3 +159,48 @@ class TestContactContext:
         result = get_contact_context()
         assert "contact:email" in result["sources"]
         assert "contact:linkedin" in result["sources"]
+
+
+# --- Job matching detection ---
+
+
+class TestIsJobMatchingQuery:
+    def test_short_question_not_matching(self):
+        assert is_job_matching_query("est-ce qu'elle correspond ?") is False
+
+    def test_job_description_fr(self):
+        jd = """Nous recherchons un ingénieur systèmes embarqués Linux pour un poste en CDI.
+        Missions : développement de drivers, intégration BSP, gestion de projet.
+        Compétences requises : C, Linux, Yocto, Git.
+        Expérience souhaitée : 5 ans minimum. Télétravail possible."""
+        assert is_job_matching_query(jd) is True
+
+    def test_job_description_en(self):
+        jd = """We are looking for a Senior Embedded Linux Engineer. Full-time position.
+        Requirements: 5+ years experience, C programming, Linux kernel, device drivers.
+        Nice to have: Python, Docker, CI/CD.
+        Responsibilities: BSP development, board bring-up, code review."""
+        assert is_job_matching_query(jd) is True
+
+    def test_normal_question(self):
+        assert is_job_matching_query("quelle est son expérience en embarqué ?") is False
+
+    def test_few_keywords_short(self):
+        assert is_job_matching_query("poste CDI") is False
+
+
+# --- Job matching in agent ---
+
+
+class TestResolveJobMatching:
+    @patch("app.services.matching.retrieve_context")
+    def test_matching_returns_structured_context(self, mock_rag):
+        mock_rag.return_value = {"context": "Narymane has 13 years experience", "sources": ["experience/ekinops_oneaccess.md"]}
+        jd = """Nous recherchons un ingénieur Linux embarqué en CDI.
+        Compétences requises : C, Linux, Yocto, drivers.
+        Missions : développement firmware, intégration BSP.
+        Expérience souhaitée : 5 ans. Télétravail hybride."""
+        result = resolve_query(jd)
+        assert "Job Matching" in result["context"]
+        assert "JOB DESCRIPTION TO ANALYZE" in result["context"]
+        assert "NARYMANE'S PROFILE" in result["context"]
