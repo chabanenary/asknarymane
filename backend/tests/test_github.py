@@ -1,11 +1,12 @@
-"""Tests for GitHub service and agent router."""
+"""Tests for GitHub service, contact service, and agent router."""
 
 from unittest.mock import patch, MagicMock
 
 import pytest
 
 from app.services.github import format_repos_context
-from app.services.agent import is_github_query, resolve_query
+from app.services.contact import get_contact_context
+from app.services.agent import is_github_query, is_contact_query, resolve_query
 
 
 # --- Intent detection ---
@@ -103,3 +104,57 @@ class TestResolveQuery:
         result = resolve_query("something random")
         assert result["context"] == ""
         assert result["sources"] == []
+
+    @patch("app.services.agent.get_contact_context")
+    @patch("app.services.agent.retrieve_context")
+    def test_contact_query(self, mock_rag, mock_contact):
+        mock_contact.return_value = {"context": "Contact info", "sources": ["contact:email"]}
+        result = resolve_query("comment contacter narymane ?")
+        assert "Contact info" in result["context"]
+        assert "contact:email" in result["sources"]
+        mock_rag.assert_not_called()
+
+
+# --- Contact detection ---
+
+
+class TestIsContactQuery:
+    def test_contact_fr(self):
+        assert is_contact_query("comment contacter narymane ?") is True
+
+    def test_contact_en(self):
+        assert is_contact_query("how can I reach narymane?") is True
+
+    def test_email_fr(self):
+        assert is_contact_query("je voudrais lui envoyer un email") is True
+
+    def test_hire(self):
+        assert is_contact_query("I want to hire her") is True
+
+    def test_linkedin(self):
+        assert is_contact_query("quel est son linkedin ?") is True
+
+    def test_not_contact(self):
+        assert is_contact_query("quelle est son expérience ?") is False
+
+
+# --- Contact context ---
+
+
+class TestContactContext:
+    def test_has_email(self):
+        result = get_contact_context()
+        assert "chabanenarymane@gmail.com" in result["context"]
+
+    def test_has_linkedin(self):
+        result = get_contact_context()
+        assert "linkedin" in result["context"].lower()
+
+    def test_has_mailto(self):
+        result = get_contact_context()
+        assert "mailto:" in result["context"]
+
+    def test_sources(self):
+        result = get_contact_context()
+        assert "contact:email" in result["sources"]
+        assert "contact:linkedin" in result["sources"]

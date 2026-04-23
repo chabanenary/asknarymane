@@ -18,7 +18,7 @@ Frontend (Next.js :3000)
     |
     v
 Backend (FastAPI :8080)
-    |---> Agent routeur           -- decide RAG, GitHub, ou les deux
+    |---> Agent routeur           -- decide RAG, GitHub, Contact, ou combiné
     |       |---> ChromaDB (:8000)    -- RAG (profil statique)
     |       +---> GitHub API          -- repos temps reel
     |---> Ollama (:11434)        -- embeddings (nomic-embed-text)
@@ -39,6 +39,11 @@ Le backend utilise un **agent routeur** qui combine deux sources de données :
 - Les repos publics de [github.com/chabanenary](https://github.com/chabanenary) sont récupérés avec langages, dates, descriptions
 - Les liens sont cliquables dans la réponse
 - Cache de 10 minutes pour éviter le rate limiting
+
+**Agent Contact** — prise de contact :
+- Quand le recruteur demande à contacter Narymane, l'agent génère un lien mailto cliquable avec un brouillon d'email pré-rempli (sujet + corps)
+- Le lien LinkedIn est aussi fourni
+- Le recruteur clique → son client mail s'ouvre avec le brouillon prêt à envoyer
 
 Le chatbot répond dans la langue de la question (français ou anglais).
 

@@ -2,6 +2,7 @@
 
 from app.services.rag import retrieve_context
 from app.services.github import get_github_context
+from app.services.contact import get_contact_context
 
 GITHUB_KEYWORDS = [
     # French
@@ -12,11 +13,27 @@ GITHUB_KEYWORDS = [
     "open source",
 ]
 
+CONTACT_KEYWORDS = [
+    # French
+    "contacter", "contact", "joindre", "écrire", "email", "mail",
+    "envoyer un message", "recruter", "candidature", "postuler",
+    "coordonnées", "linkedin",
+    # English
+    "contact", "reach", "email", "hire", "write to", "get in touch",
+    "send a message", "apply", "coordinates",
+]
+
 
 def is_github_query(query: str) -> bool:
     """Detect if the query is about GitHub."""
     query_lower = query.lower()
     return any(kw in query_lower for kw in GITHUB_KEYWORDS)
+
+
+def is_contact_query(query: str) -> bool:
+    """Detect if the query is about contacting Narymane."""
+    query_lower = query.lower()
+    return any(kw in query_lower for kw in CONTACT_KEYWORDS)
 
 
 def resolve_query(query: str) -> dict:
@@ -29,12 +46,14 @@ def resolve_query(query: str) -> dict:
     sources = []
 
     use_github = is_github_query(query)
+    use_contact = is_contact_query(query)
 
-    # Always query RAG for profile context
-    rag_result = retrieve_context(query)
-    if rag_result["context"]:
-        contexts.append(rag_result["context"])
-        sources.extend(rag_result["sources"])
+    # Always query RAG for profile context (unless pure contact query)
+    if not use_contact or use_github:
+        rag_result = retrieve_context(query)
+        if rag_result["context"]:
+            contexts.append(rag_result["context"])
+            sources.extend(rag_result["sources"])
 
     # Add GitHub data if relevant
     if use_github:
@@ -42,6 +61,12 @@ def resolve_query(query: str) -> dict:
         if gh_result["context"]:
             contexts.append(gh_result["context"])
             sources.extend(gh_result["sources"])
+
+    # Add contact info if relevant
+    if use_contact:
+        contact_result = get_contact_context()
+        contexts.append(contact_result["context"])
+        sources.extend(contact_result["sources"])
 
     return {
         "context": "\n\n---\n\n".join(contexts),

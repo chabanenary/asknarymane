@@ -25,7 +25,7 @@ export default function ChatWidget() {
     {
       role: "assistant",
       content:
-        "Bonjour ! Je suis l'assistant de **Narymane Chabane**. Posez-moi vos questions sur son parcours professionnel, sa formation, ses projets et ses compétences.",
+        "Bonjour ! Je suis l'assistant de **Narymane Chabane**. Posez-moi vos questions sur son parcours professionnel, sa formation, ses projets et ses compétences, comment la contacter, ou si elle correspond au poste que vous souhaitez pourvoir.",
     },
   ]);
   const [input, setInput] = useState("");
