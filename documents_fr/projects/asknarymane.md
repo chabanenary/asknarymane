@@ -69,7 +69,17 @@ La base de connaissances du chatbot est constituée des propres documents de Nar
 - Articles de blog et contributions communautaires
 
 ## Déploiement en production
-Ce projet est déployé en production sur asknarymane.dev, démontrant la capacité de Narymane à concevoir, développer et déployer une application IA complète avec des agents intelligents en conditions réelles. Le pipeline complet — de l'ingestion de documents au serving LLM en passant par le routage d'agents — tourne en production dans un environnement conteneurisé.
+Ce projet est déployé en production sur asknarymane.net, démontrant la capacité de Narymane à concevoir, développer et déployer une application IA complète avec des agents intelligents en conditions réelles. Le pipeline complet — de l'ingestion de documents au serving LLM en passant par le routage d'agents — tourne en production.
 
-- **Développement** : Docker Compose avec Ollama en local sur Mac (Apple Silicon M1), qwen2:1.5b pour l'itération rapide
-- **Production** : API Groq (offre gratuite, Llama 3.3 70B) pour des réponses de haute qualité, déploiement sur asknarymane.dev via Kubernetes
+Narymane a conçu une architecture dual-mode qui permet au même code de tourner dans deux environnements :
+- **Développement** : Docker Compose (Podman) avec 4 containers — Ollama (embeddings + LLM), serveur ChromaDB, backend FastAPI, frontend Next.js
+- **Production** : Render.com avec 2 services — backend FastAPI (ChromaDB embedded + API Groq), site statique Next.js (CDN)
+
+Compétences de déploiement démontrées :
+- **Déploiement cloud** : configuration Render.com Web Service + Static Site
+- **Infrastructure as Code** : blueprint `render.yaml` pour un déploiement déclaratif
+- **Configuration pilotée par l'environnement** : même code, comportement différent via variables d'environnement (LLM_PROVIDER, EMBEDDING_PROVIDER, CHROMA_MODE)
+- **Auto-ingestion** : le backend ingère automatiquement les documents au démarrage si la base vectorielle est vide
+- **Stratégie d'embedding duale** : Ollama (nomic-embed-text) en dev, ChromaDB intégré (all-MiniLM-L6-v2) en prod — aucune dépendance externe en production
+- **Export de site statique** : Next.js configuré pour le mode standalone (Docker) et l'export statique (CDN)
+- **Gestion CORS** : configuration dynamique des origines pour les environnements dev et prod

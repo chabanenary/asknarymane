@@ -7,7 +7,7 @@ EMBED_MODEL = "nomic-embed-text"
 
 
 class OllamaEmbeddingFunction(EmbeddingFunction):
-    """Use Ollama to generate embeddings instead of ChromaDB's default ONNX model."""
+    """Use Ollama to generate embeddings (dev local with Ollama container)."""
 
     def __init__(self) -> None:
         pass
@@ -23,3 +23,15 @@ class OllamaEmbeddingFunction(EmbeddingFunction):
                 response.raise_for_status()
                 embeddings.append(response.json()["embeddings"][0])
         return embeddings
+
+
+def get_embedding_function() -> EmbeddingFunction | None:
+    """Return the appropriate embedding function based on config.
+
+    - "ollama" → OllamaEmbeddingFunction (dev, needs Ollama container)
+    - "default" → None (ChromaDB's built-in all-MiniLM-L6-v2, prod)
+    """
+    if settings.embedding_provider == "ollama":
+        return OllamaEmbeddingFunction()
+    # None = ChromaDB uses its default ONNX embedding model
+    return None

@@ -69,7 +69,17 @@ The chatbot's knowledge base consists of Narymane's own documents in both Englis
 - Blog posts and community contributions
 
 ## Production Deployment
-This project is deployed in production at asknarymane.dev, demonstrating Narymane's ability to design, develop, and deploy a complete AI application with intelligent agents in real-world conditions. The full pipeline — from document ingestion to LLM serving to agent routing — runs in production in a containerized environment.
+This project is deployed in production at asknarymane.net, demonstrating Narymane's ability to design, develop, and deploy a complete AI application with intelligent agents in real-world conditions. The full pipeline — from document ingestion to LLM serving to agent routing — runs in production.
 
-- **Development**: Docker Compose with Ollama locally on Mac (Apple Silicon M1), qwen2:1.5b for fast iteration
-- **Production**: Groq API (free tier, Llama 3.3 70B) for high-quality responses, deployment on asknarymane.dev via Kubernetes
+Narymane designed a dual-mode architecture that allows the same codebase to run in two environments:
+- **Development**: Docker Compose (Podman) with 4 containers — Ollama (embeddings + LLM), ChromaDB server, FastAPI backend, Next.js frontend
+- **Production**: Render.com with 2 services — FastAPI backend (ChromaDB embedded + Groq API), Next.js static site (CDN)
+
+Key deployment skills demonstrated:
+- **Cloud deployment**: Render.com Web Service + Static Site configuration
+- **Infrastructure as Code**: `render.yaml` blueprint for declarative deployment
+- **Environment-driven configuration**: Same code, different behavior via environment variables (LLM_PROVIDER, EMBEDDING_PROVIDER, CHROMA_MODE)
+- **Auto-ingestion**: Backend automatically ingests documents at startup if the vector database is empty
+- **Dual embedding strategy**: Ollama (nomic-embed-text) for dev, ChromaDB built-in (all-MiniLM-L6-v2) for prod — no external dependency in production
+- **Static site export**: Next.js configured for both standalone (Docker) and static export (CDN) modes
+- **CORS management**: Dynamic origin configuration for dev and prod environments

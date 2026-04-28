@@ -1,0 +1,39 @@
+services:
+  # Backend — FastAPI Web Service
+  - type: web
+    name: asknarymane-api
+    runtime: python
+    buildCommand: cd backend && pip install .
+    startCommand: cd backend && uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: LLM_PROVIDER
+        value: groq
+      - key: EMBEDDING_PROVIDER
+        value: default
+      - key: CHROMA_MODE
+        value: embedded
+      - key: CHROMA_DATA_PATH
+        value: /opt/render/project/src/chroma_data
+      - key: DOCUMENTS_DIR
+        value: documents
+      - key: DOCUMENTS_FR_DIR
+        value: documents_fr
+      - key: CORS_ORIGINS
+        value: '["https://asknarymane.onrender.com"]'
+      - key: GROQ_API_KEY
+        sync: false  # Set manually in Render dashboard
+      - key: GROQ_MODEL
+        value: llama-3.3-70b-versatile
+      - key: PYTHON_VERSION
+        value: "3.12"
+
+  # Frontend — Static Site
+  - type: web
+    name: asknarymane
+    env: static
+    rootDir: frontend
+    buildCommand: NEXT_OUTPUT=export npm run build
+    staticPublishPath: out
+    envVars:
+      - key: NEXT_PUBLIC_API_URL
+        value: https://asknarymane-api.onrender.com

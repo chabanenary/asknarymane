@@ -6,7 +6,8 @@ from pathlib import Path
 import chromadb
 
 from app.config import settings
-from app.services.embeddings import OllamaEmbeddingFunction
+from app.services.embeddings import get_embedding_function
+from app.services.rag import get_chroma_client
 
 COLLECTION_NAME = "narymane_profile"
 
@@ -75,7 +76,7 @@ def chunk_by_sections(text: str, source: str, category: str) -> list[dict]:
 
 def ingest():
     """Main ingestion pipeline."""
-    client = chromadb.HttpClient(host=settings.chroma_host, port=settings.chroma_port)
+    client = get_chroma_client()
 
     # Reset collection if it exists
     try:
@@ -83,10 +84,11 @@ def ingest():
     except Exception:
         pass
 
-    collection = client.create_collection(
-        name=COLLECTION_NAME,
-        embedding_function=OllamaEmbeddingFunction(),
-    )
+    ef = get_embedding_function()
+    kwargs = {"name": COLLECTION_NAME}
+    if ef is not None:
+        kwargs["embedding_function"] = ef
+    collection = client.create_collection(**kwargs)
 
     # Ingest both English and French documents
     sources = [

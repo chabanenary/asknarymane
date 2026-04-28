@@ -17,9 +17,14 @@ class Settings(BaseSettings):
     api_host: str = "0.0.0.0"
     api_port: int = 8080
 
-    # ChromaDB
+    # Embeddings: "ollama" (dev, needs Ollama) or "default" (prod, ChromaDB built-in)
+    embedding_provider: str = "ollama"
+
+    # ChromaDB: "http" (dev, container) or "embedded" (prod, in-process)
+    chroma_mode: str = "http"
     chroma_host: str = "localhost"
     chroma_port: int = 8000
+    chroma_data_path: str = "./chroma_data"
 
     # GitHub
     github_username: str = "chabanenary"

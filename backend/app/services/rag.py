@@ -5,7 +5,7 @@ import time
 import chromadb
 
 from app.config import settings
-from app.services.embeddings import OllamaEmbeddingFunction
+from app.services.embeddings import get_embedding_function
 
 COLLECTION_NAME = "narymane_profile"
 MAX_DISTANCE = 1.2
@@ -149,12 +149,20 @@ def deduplicate(docs: list[dict], preferred_lang: str) -> list[dict]:
 
 # --- Collection ---
 
+def get_chroma_client():
+    """Get ChromaDB client based on mode (http or embedded)."""
+    if settings.chroma_mode == "embedded":
+        return chromadb.PersistentClient(path=settings.chroma_data_path)
+    return chromadb.HttpClient(host=settings.chroma_host, port=settings.chroma_port)
+
+
 def get_collection():
-    client = chromadb.HttpClient(host=settings.chroma_host, port=settings.chroma_port)
-    return client.get_collection(
-        name=COLLECTION_NAME,
-        embedding_function=OllamaEmbeddingFunction(),
-    )
+    client = get_chroma_client()
+    ef = get_embedding_function()
+    kwargs = {"name": COLLECTION_NAME}
+    if ef is not None:
+        kwargs["embedding_function"] = ef
+    return client.get_collection(**kwargs)
 
 
 # --- Main retrieve ---

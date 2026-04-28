@@ -7,54 +7,52 @@ Chatbot IA destiné aux recruteurs pour explorer le parcours professionnel et la
 - **Backend** : Python / FastAPI
 - **Frontend** : Next.js / React / Tailwind CSS
 - **LLM** : Groq API (Llama 3.3 70B) en prod / Ollama (qwen2:1.5b) en dev local
-- **Embeddings** : nomic-embed-text via Ollama
-- **Vector DB** : ChromaDB
-- **Conteneurisation** : Docker Compose (Podman compatible)
+- **Embeddings** : nomic-embed-text via Ollama (dev) / all-MiniLM-L6-v2 intégré (prod)
+- **Vector DB** : ChromaDB (serveur en dev, embedded en prod)
+- **Conteneurisation** : Docker Compose (Podman compatible) en dev
+- **Hébergement** : Render.com (gratuit) en prod
 
 ## Architecture
 
+Le même code supporte deux modes, pilotés par les variables d'environnement :
+
 ```
-Frontend (Next.js :3000)
-    |
-    v
-Backend (FastAPI :8080)
-    |---> Agent routeur           -- decide RAG, GitHub, Contact, Matching, ou combiné
-    |       |---> ChromaDB (:8000)    -- RAG (profil statique)
-    |       |---> GitHub API          -- repos temps reel
-    |       +---> Job Matching        -- comparaison profil vs fiche de poste
-    |---> Ollama (:11434)        -- embeddings (nomic-embed-text)
-    +---> LLM Provider           -- configurable :
-          - Groq API (cloud)        llama-3.3-70b-versatile (defaut)
-          - Ollama (local)          qwen2:1.5b
+DEV LOCAL (Docker Compose)              PROD (Render.com)
+──────────────────────────              ─────────────────
+4 containers :                          2 services :
+  Frontend (Next.js :3000)                Static Site (CDN)
+  Backend (FastAPI :8080)                 Web Service (FastAPI)
+  ChromaDB (serveur :8000)                ChromaDB embedded (in-process)
+  Ollama (embeddings + LLM)               Pas d'Ollama (Groq + built-in)
+
+LLM_PROVIDER=ollama                     LLM_PROVIDER=groq
+EMBEDDING_PROVIDER=ollama               EMBEDDING_PROVIDER=default
+CHROMA_MODE=http                        CHROMA_MODE=embedded
 ```
 
 Le backend utilise un **agent routeur** qui combine plusieurs sources de données :
 
 **RAG** (Retrieval-Augmented Generation) — profil statique :
-1. La question du recruteur est convertie en vecteur via Ollama (nomic-embed-text)
+1. La question du recruteur est convertie en vecteur (embedding)
 2. Les sections les plus pertinentes du profil sont récupérées dans ChromaDB (FR + EN)
 3. Le contexte est injecté dans le prompt envoyé au LLM
 
 **Agent GitHub** — données temps réel :
-- Quand la question concerne GitHub (repos, code, contributions), l'agent interroge l'API GitHub en temps réel
-- Les repos publics de [github.com/chabanenary](https://github.com/chabanenary) sont récupérés avec langages, dates, descriptions
-- Les liens sont cliquables dans la réponse
-- Cache de 10 minutes pour éviter le rate limiting
+- Interroge l'API GitHub en temps réel pour les repos publics de [github.com/chabanenary](https://github.com/chabanenary)
+- Liens cliquables, langages, dates de dernière mise à jour
+- Cache de 10 minutes
 
 **Agent Contact** — prise de contact :
-- Quand le recruteur demande à contacter Narymane, l'agent génère un lien mailto cliquable avec un brouillon d'email pré-rempli (sujet + corps)
-- Le lien LinkedIn est aussi fourni
-- Le recruteur clique → son client mail s'ouvre avec le brouillon prêt à envoyer
+- Génère un lien mailto cliquable avec un brouillon d'email pré-rempli
+- Lien LinkedIn inclus
 
 **Agent Matching** — comparaison profil vs fiche de poste :
-- Le recruteur colle une fiche de poste dans le chat
-- L'agent récupère l'intégralité du profil de Narymane via le RAG
-- Le LLM génère un rapport structuré : score de compatibilité, points forts, compétences transférables, écarts identifiés, recommandation
-- Détection automatique des fiches de poste (mots-clés : "missions", "compétences requises", "CDI", etc.)
+- Le recruteur colle une fiche de poste → rapport structuré de compatibilité
+- Score, points forts, compétences transférables, écarts, recommandation
 
 Le chatbot répond dans la langue de la question (français ou anglais).
 
-## Prérequis
+## Prérequis (dev local)
 
 - [Podman](https://podman.io/) ou [Docker](https://www.docker.com/)
 - podman-compose ou docker-compose
@@ -68,53 +66,59 @@ cd asknarymane
 cp .env.example .env
 ```
 
-## Configuration du LLM
+## Configuration
 
-Le provider LLM est configurable via la variable `LLM_PROVIDER` dans `.env` :
+Tout se configure dans `.env`. Deux profils types :
 
-### Option 1 — Groq API (recommandé)
-
-Modèle cloud performant, gratuit (30 req/min). Créer une clé sur [console.groq.com](https://console.groq.com).
-
-```env
-LLM_PROVIDER=groq
-GROQ_API_KEY=gsk_votre_clé_ici
-GROQ_MODEL=llama-3.3-70b-versatile
-```
-
-Modèles disponibles via le sélecteur dans l'interface :
-- `llama-3.3-70b-versatile` (par défaut, le plus performant)
-- `qwen/qwen3-32b`
-- `meta-llama/llama-4-scout-17b-16e-instruct`
-- `llama-3.1-8b-instant`
-
-### Option 2 — Ollama (dev local)
-
-Modèle local, pas besoin de clé API ni d'internet. Plus lent et moins performant.
+### Dev local (Docker Compose + Ollama)
 
 ```env
 LLM_PROVIDER=ollama
+EMBEDDING_PROVIDER=ollama
+CHROMA_MODE=http
 OLLAMA_BASE_URL=http://localhost:11434
 OLLAMA_MODEL=qwen2:1.5b
 ```
 
-## Lancement
+### Production (Render + Groq)
+
+```env
+LLM_PROVIDER=groq
+EMBEDDING_PROVIDER=default
+CHROMA_MODE=embedded
+GROQ_API_KEY=gsk_votre_clé_ici
+GROQ_MODEL=llama-3.3-70b-versatile
+```
+
+Modèles Groq disponibles via le sélecteur dans l'interface :
+- `llama-3.3-70b-versatile` (par défaut)
+- `qwen/qwen3-32b`
+- `meta-llama/llama-4-scout-17b-16e-instruct`
+- `llama-3.1-8b-instant`
+
+## Lancement (dev local)
 
 ```bash
-# Démarrer les services (Ollama + ChromaDB + Backend + Frontend)
+# Démarrer les services
 podman compose up --build -d
 
-# Télécharger le modèle d'embedding (toujours nécessaire)
+# Télécharger les modèles (première fois uniquement)
 podman compose exec ollama ollama pull nomic-embed-text
+podman compose exec ollama ollama pull qwen2:1.5b    # si LLM_PROVIDER=ollama
 
-# Télécharger le modèle LLM local (uniquement si LLM_PROVIDER=ollama)
-podman compose exec ollama ollama pull qwen2:1.5b
-
-# Ingérer les documents du profil dans ChromaDB
+# Ingérer les documents (ou automatique au démarrage si base vide)
 podman compose exec backend python -m app.scripts.ingest
 ```
 
-Le frontend est accessible sur **http://localhost:3000** et l'API sur **http://localhost:8080**.
+Frontend : **http://localhost:3000** | API : **http://localhost:8080**
+
+## Déploiement (Render.com)
+
+Le fichier `render.yaml` configure automatiquement les deux services :
+1. Connecter le repo GitHub sur [render.com](https://render.com)
+2. Créer les services via "New > Blueprint" et sélectionner le repo
+3. Ajouter `GROQ_API_KEY` dans le dashboard Render (Environment)
+4. L'ingestion se fait automatiquement au premier démarrage
 
 ## Tests
 
@@ -135,32 +139,32 @@ podman compose down
 asknarymane/
 ├── backend/              # API FastAPI
 │   ├── app/
+│   │   ├── main.py       # App + auto-ingestion au startup
+│   │   ├── config.py     # Settings (dual-mode dev/prod)
 │   │   ├── routers/      # Endpoints (chat, health, config)
 │   │   ├── services/     # LLM, RAG, GitHub, Contact, Matching, agent routeur
 │   │   └── scripts/      # Ingestion des documents
-│   ├── tests/            # Tests endpoints (pytest)
+│   ├── tests/            # Tests endpoints + RAG (pytest)
 │   └── Dockerfile
 ├── frontend/             # Interface chat Next.js
 │   └── Dockerfile
-├── documents/            # Profil Narymane en anglais (markdown)
-├── documents_fr/         # Profil Narymane en français (markdown)
-│   ├── cv/               # Profil, aspirations
-│   ├── experience/       # Expériences pro
-│   ├── education/        # Parcours académique
-│   ├── projects/         # Projets personnels
-│   └── blog/             # Publications
-├── docs/                 # Documentation technique
-├── docker-compose.yml
+├── documents/            # Profil Narymane en anglais
+├── documents_fr/         # Profil Narymane en français
+├── docker-compose.yml    # Dev local (4 containers)
+├── render.yaml           # Déploiement Render (2 services)
 ├── .env.example
 └── Makefile
 ```
 
 ## Documents du profil
 
-La base de connaissances du chatbot est composée de fichiers markdown dans `documents/` (anglais) et `documents_fr/` (français). Les deux versions sont indexées dans ChromaDB pour un matching optimal quelle que soit la langue de la question.
+La base de connaissances est composée de fichiers markdown dans `documents/` (EN) et `documents_fr/` (FR). Les deux versions sont indexées dans ChromaDB. L'ingestion est automatique au démarrage si la base est vide.
 
-Pour mettre à jour le profil, modifier les fichiers puis relancer :
+Pour forcer une ré-ingestion :
 
 ```bash
+# Dev local
 podman compose exec backend python -m app.scripts.ingest
+
+# Prod (redéployer le backend sur Render suffit)
 ```
