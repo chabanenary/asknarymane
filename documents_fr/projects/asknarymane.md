@@ -73,11 +73,11 @@ Ce projet est déployé en production sur asknarymane.net, démontrant la capaci
 
 Narymane a conçu une architecture dual-mode qui permet au même code de tourner dans deux environnements :
 - **Développement** : Docker Compose (Podman) avec 4 containers — Ollama (embeddings + LLM), serveur ChromaDB, backend FastAPI, frontend Next.js
-- **Production** : Render.com avec 2 services — backend FastAPI (ChromaDB embedded + API Groq), site statique Next.js (CDN)
+- **Production** : Railway.app avec 2 services — backend FastAPI (ChromaDB embedded + API Groq), site statique Next.js (CDN)
 
 Compétences de déploiement démontrées :
-- **Déploiement cloud** : configuration Render.com Web Service + Static Site
-- **Infrastructure as Code** : blueprint `render.yaml` pour un déploiement déclaratif
+- **Déploiement cloud** : configuration Railway.app Web Service + Static Site
+- **Infrastructure as Code** : blueprint `railway.json` pour un déploiement déclaratif
 - **Configuration pilotée par l'environnement** : même code, comportement différent via variables d'environnement (LLM_PROVIDER, EMBEDDING_PROVIDER, CHROMA_MODE)
 - **Auto-ingestion** : le backend ingère automatiquement les documents au démarrage si la base vectorielle est vide
 - **Stratégie d'embedding duale** : Ollama (nomic-embed-text) en dev, ChromaDB intégré (all-MiniLM-L6-v2) en prod — aucune dépendance externe en production

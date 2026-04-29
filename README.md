@@ -10,14 +10,14 @@ Chatbot IA destiné aux recruteurs pour explorer le parcours professionnel et la
 - **Embeddings** : nomic-embed-text via Ollama (dev) / all-MiniLM-L6-v2 intégré (prod)
 - **Vector DB** : ChromaDB (serveur en dev, embedded en prod)
 - **Conteneurisation** : Docker Compose (Podman compatible) en dev
-- **Hébergement** : Render.com (gratuit) en prod
+- **Hébergement** : Railway.app (gratuit) en prod
 
 ## Architecture
 
 Le même code supporte deux modes, pilotés par les variables d'environnement :
 
 ```
-DEV LOCAL (Docker Compose)              PROD (Render.com)
+DEV LOCAL (Docker Compose)              PROD (Railway.app)
 ──────────────────────────              ─────────────────
 4 containers :                          2 services :
   Frontend (Next.js :3000)                Static Site (CDN)
@@ -80,7 +80,7 @@ OLLAMA_BASE_URL=http://localhost:11434
 OLLAMA_MODEL=qwen2:1.5b
 ```
 
-### Production (Render + Groq)
+### Production (Railway + Groq)
 
 ```env
 LLM_PROVIDER=groq
@@ -112,12 +112,17 @@ podman compose exec backend python -m app.scripts.ingest
 
 Frontend : **http://localhost:3000** | API : **http://localhost:8080**
 
-## Déploiement (Render.com)
+## Déploiement (Railway.app)
 
-Le fichier `render.yaml` configure automatiquement les deux services :
-1. Connecter le repo GitHub sur [render.com](https://render.com)
-2. Créer les services via "New > Blueprint" et sélectionner le repo
-3. Ajouter `GROQ_API_KEY` dans le dashboard Render (Environment)
+1. Créer un compte sur [railway.app](https://railway.app) et connecter le repo GitHub
+2. Créer un nouveau projet → "Deploy from GitHub" → sélectionner `chabanenary/asknarymane`
+3. Ajouter les variables d'environnement dans le dashboard Railway :
+   - `LLM_PROVIDER=groq`
+   - `EMBEDDING_PROVIDER=default`
+   - `CHROMA_MODE=embedded`
+   - `GROQ_API_KEY=gsk_...`
+   - `GROQ_MODEL=llama-3.3-70b-versatile`
+   - `CORS_ORIGINS=["https://asknarymane.up.railway.app"]`
 4. L'ingestion se fait automatiquement au premier démarrage
 
 ## Tests
@@ -151,7 +156,7 @@ asknarymane/
 ├── documents/            # Profil Narymane en anglais
 ├── documents_fr/         # Profil Narymane en français
 ├── docker-compose.yml    # Dev local (4 containers)
-├── render.yaml           # Déploiement Render (2 services)
+├── railway.json          # Config déploiement Railway
 ├── .env.example
 └── Makefile
 ```
@@ -166,5 +171,5 @@ Pour forcer une ré-ingestion :
 # Dev local
 podman compose exec backend python -m app.scripts.ingest
 
-# Prod (redéployer le backend sur Render suffit)
+# Prod (redéployer le backend sur Railway suffit)
 ```
