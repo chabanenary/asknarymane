@@ -4,7 +4,7 @@
 AskNarymane est un chatbot alimenté par RAG qui répond aux questions des recruteurs sur le profil professionnel, les projets et l'expérience de Narymane. Il intègre un système d'agents intelligent combinant données de profil statiques, informations GitHub en temps réel, facilitation de contact, et analyse de correspondance avec des fiches de poste. C'est une vitrine portfolio et une démonstration de compétences avancées en ingénierie IA/ML.
 
 GitHub : https://github.com/chabanenary/asknarymane
-Site web (prévu) : https://asknarymane.dev
+Site web : https://asknarymane.com
 
 ## Architecture
 - **Fournisseur LLM** : Système dual — API Groq (Llama 3.3 70B) en production, Ollama (qwen2:1.5b) en développement local. Commutable via variable d'environnement.
@@ -69,7 +69,7 @@ La base de connaissances du chatbot est constituée des propres documents de Nar
 - Articles de blog et contributions communautaires
 
 ## Déploiement en production
-Ce projet est déployé en production sur asknarymane.net, démontrant la capacité de Narymane à concevoir, développer et déployer une application IA complète avec des agents intelligents en conditions réelles. Le pipeline complet — de l'ingestion de documents au serving LLM en passant par le routage d'agents — tourne en production.
+Ce projet est déployé en production sur asknarymane.com, démontrant la capacité de Narymane à concevoir, développer et déployer une application IA complète avec des agents intelligents en conditions réelles. Le pipeline complet — de l'ingestion de documents au serving LLM en passant par le routage d'agents — tourne en production.
 
 Narymane a conçu une architecture dual-mode qui permet au même code de tourner dans deux environnements :
 - **Développement** : Docker Compose (Podman) avec 4 containers — Ollama (embeddings + LLM), serveur ChromaDB, backend FastAPI, frontend Next.js
