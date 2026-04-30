@@ -76,6 +76,27 @@ She is currently building hands-on experience with LLM serving (Ollama, Mistral,
 - GDB (cross-compiled, gdbserver), Lauterbach Trace32, BDI2000, CodeWarrior
 - Valgrind, strace, ltrace, perf, dmesg, NVIDIA Nsight
 
+## Python Experience
+Narymane has 5+ years of hands-on Python experience at an advanced level. Python is her primary language for AI/ML development, API design, and automation.
+
+### Key Python Projects
+- **AskNarymane**: RAG-powered chatbot built with FastAPI, LangChain, ChromaDB, and Groq/Ollama LLM integration
+- **YoloGK Serving API**: ML model serving via FastAPI + ONNX Runtime, deployed on CPU, NVIDIA Jetson Nano (GPU), and Kubernetes/OpenShift
+- **MCP Agents**: AI agent servers built with Python MCP SDK and FastAPI
+
+### Python Frameworks & Libraries
+- **Web/API**: FastAPI, Uvicorn, Pydantic
+- **AI/ML**: LangChain, ChromaDB, ONNX Runtime, TensorFlow, OpenCV, Pillow
+- **Testing**: pytest
+- **DevOps**: Docker, scripting, automation
+
+### What She Can Do in Python
+- Design and build async REST APIs with FastAPI
+- Build RAG pipelines (ingestion, embedding, retrieval, re-ranking)
+- Serve ML models via REST endpoints with GPU/CPU fallback
+- Write clean, tested, production-ready Python code
+- Containerize Python applications with Docker
+
 ## Work Preferences
 - Fully remote worker — deliberately chose to leave Paris for the south of France for quality of life and family
 - Comfortable with asynchronous collaboration and globally distributed teams

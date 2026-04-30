@@ -54,6 +54,8 @@ CATEGORY_KEYWORDS = {
     "cv": [
         "compétence", "skill", "profil", "cv", "résumé", "contact",
         "langue", "language", "aspiration",
+        "python", "langage", "programming", "fastapi", "docker",
+        "kubernetes", "linux", "niveau", "level",
     ],
     "blog": [
         "blog", "article", "publication", "open source", "communauté",
