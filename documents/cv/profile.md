@@ -31,7 +31,7 @@ She is currently building hands-on experience with LLM serving (Ollama, Mistral,
 
 ### Programming Languages
 - C (10+ years, expert level) — primary language throughout career
-- Python (3+ years, proficient) — AI/ML, FastAPI, automation
+- Python (5+ years, advanced) — AI/ML, FastAPI, LangChain, ONNX Runtime, pytest, automation. Key projects: AskNarymane (RAG chatbot), YoloGK Serving API (ML deployment on CPU, Jetson Nano, Kubernetes), MCP agents
 - Java (proficient) — Android development (GalleryKeeper app)
 - Bash/Shell scripting (10+ years) — build automation, CI/CD
 - C++ (intermediate) — debugging network stacks, system-level projects
