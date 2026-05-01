@@ -32,6 +32,16 @@ async def lifespan(app: FastAPI):
                 print(f"Collection '{COLLECTION_NAME}' ready ({collection.count()} chunks).")
     except Exception as e:
         print(f"Auto-ingestion failed: {e}")
+
+    # Pre-generate CV PDFs
+    try:
+        from app.services.cv_pdf import generate_cv_pdf
+        print("Generating CV PDFs...")
+        generate_cv_pdf("en")
+        generate_cv_pdf("fr")
+        print("CV PDFs ready.")
+    except Exception as e:
+        print(f"CV PDF generation failed: {e}")
     yield
 
 

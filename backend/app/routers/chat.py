@@ -1,9 +1,11 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
+from fastapi.responses import Response
 from pydantic import BaseModel
 
 from app.config import settings
 from app.services.llm import chat_completion
 from app.services.agent import resolve_query
+from app.services.cv_pdf import get_cv_pdf
 
 GROQ_MODELS = [
     {"id": "llama-3.3-70b-versatile", "name": "Llama 3.3 70B"},
@@ -63,6 +65,20 @@ async def get_config():
     }
 
 
+@router.get("/cv")
+async def download_cv(lang: str = "en"):
+    """Serve pre-generated CV as PDF."""
+    if lang not in ("en", "fr"):
+        lang = "en"
+    pdf_bytes = get_cv_pdf(lang)
+    filename = f"CV_Narymane_Chabane_{'FR' if lang == 'fr' else 'EN'}.pdf"
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'inline; filename="{filename}"'},
+    )
+
+
 @router.post("/chat", response_model=ChatResponse)
 async def chat(request: ChatRequest):
     try:
@@ -86,9 +102,21 @@ async def chat(request: ChatRequest):
                 search_query = " ".join(prev_messages[-2:]) + " " + last_user_msg
 
         # Resolve query via agent (RAG + GitHub)
-        agent_result = resolve_query(search_query) if last_user_msg else {"context": "", "sources": []}
+        agent_result = resolve_query(search_query) if last_user_msg else {"context": "", "sources": [], "cv_requested": False}
         context = agent_result["context"]
         sources = agent_result["sources"]
+        cv_requested = agent_result.get("cv_requested", False)
+
+        # If CV requested, detect language and inject download link
+        if cv_requested:
+            from app.services.rag import detect_language
+            cv_lang = detect_language(last_user_msg)
+            api_base = settings.api_base_url if hasattr(settings, "api_base_url") else ""
+            if not api_base:
+                api_base = "https://asknarymane-production.up.railway.app" if settings.chroma_mode == "embedded" else "http://localhost:8080"
+            cv_url = f"{api_base}/cv?lang={cv_lang}"
+            cv_label = "Télécharger le CV (PDF)" if cv_lang == "fr" else "Download CV (PDF)"
+            context += f"\n\nIMPORTANT: The user is asking for Narymane's CV. You MUST include this download link in your response: [{cv_label}]({cv_url})"
 
         # Inject context as a fake assistant-provided document
         augmented_messages = [

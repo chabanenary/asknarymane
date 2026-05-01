@@ -52,6 +52,12 @@ Le backend utilise un **agent routeur** qui combine plusieurs sources de donnée
 - Le recruteur colle une fiche de poste → rapport structuré de compatibilité
 - Score, points forts, compétences transférables, écarts, recommandation
 
+**Agent CV** — téléchargement du CV :
+- Détecte quand le recruteur demande le CV ("donne-moi son CV", "download resume", etc.)
+- Génère un PDF à partir des documents markdown (bilingue FR/EN)
+- Fournit un lien de téléchargement cliquable dans la réponse
+- PDFs pré-générés au démarrage pour des réponses instantanées
+
 Le chatbot répond dans la langue de la question (français ou anglais).
 
 ## Prérequis (dev local)
@@ -112,7 +118,7 @@ podman compose exec ollama ollama pull qwen2:1.5b    # si LLM_PROVIDER=ollama
 podman compose exec backend python -m app.scripts.ingest
 ```
 
-Frontend : **http://localhost:3000** | API : **http://localhost:8080**
+Frontend : **http://localhost:3000** | API : **http://localhost:8080** | CV PDF : **http://localhost:8080/cv?lang=fr**
 
 ## Déploiement (Railway.app)
 
@@ -148,8 +154,8 @@ asknarymane/
 │   ├── app/
 │   │   ├── main.py       # App + auto-ingestion au startup
 │   │   ├── config.py     # Settings (dual-mode dev/prod)
-│   │   ├── routers/      # Endpoints (chat, health, config)
-│   │   ├── services/     # LLM, RAG, GitHub, Contact, Matching, agent routeur
+│   │   ├── routers/      # Endpoints (chat, health, config, cv)
+│   │   ├── services/     # LLM, RAG, GitHub, Contact, Matching, CV PDF, agent routeur
 │   │   └── scripts/      # Ingestion des documents
 │   ├── tests/            # Tests endpoints + RAG (pytest)
 │   └── Dockerfile

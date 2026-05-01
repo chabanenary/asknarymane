@@ -5,6 +5,15 @@ from app.services.github import get_github_context
 from app.services.contact import get_contact_context
 from app.services.matching import is_job_matching_query, get_matching_context
 
+CV_KEYWORDS = [
+    # French
+    "cv", "curriculum", "télécharger le cv", "voir le cv", "son cv",
+    "envoyer le cv", "pdf",
+    # English
+    "resume", "download cv", "get her cv", "curriculum vitae",
+    "download resume", "her cv", "send cv",
+]
+
 GITHUB_KEYWORDS = [
     # French
     "github", "repo", "dépôt", "code source", "derniers projets",
@@ -23,6 +32,12 @@ CONTACT_KEYWORDS = [
     "contact", "reach", "email", "hire", "write to", "get in touch",
     "send a message", "apply", "coordinates",
 ]
+
+
+def is_cv_query(query: str) -> bool:
+    """Detect if the user is asking for a downloadable CV."""
+    query_lower = query.lower()
+    return any(kw in query_lower for kw in CV_KEYWORDS)
 
 
 def is_github_query(query: str) -> bool:
@@ -46,6 +61,7 @@ def resolve_query(query: str) -> dict:
     contexts = []
     sources = []
 
+    use_cv = is_cv_query(query)
     use_github = is_github_query(query)
     use_contact = is_contact_query(query)
     use_matching = is_job_matching_query(query)
@@ -78,4 +94,5 @@ def resolve_query(query: str) -> dict:
     return {
         "context": "\n\n---\n\n".join(contexts),
         "sources": sources,
+        "cv_requested": use_cv,
     }

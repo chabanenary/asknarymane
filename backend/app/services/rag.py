@@ -23,7 +23,7 @@ FR_MARKERS = [
     "quel", "quelle", "quels", "quelles", "comment", "pourquoi", "est-ce",
     "où", "qui est", "qu'est", "sur quoi", "dans quel", "son ", "sa ", "ses ",
     "elle ", "travaillé", "étudié", "projets", "expérience", "formation",
-    "compétence", "parcours", "diplôme",
+    "compétence", "parcours", "diplôme", "donne", "voir", "télécharger",
 ]
 
 
