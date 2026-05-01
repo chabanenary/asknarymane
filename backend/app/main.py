@@ -9,27 +9,29 @@ from app.routers import chat
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Auto-ingest documents if ChromaDB collection is empty."""
+    """Auto-ingest documents. Always in prod, only if empty in dev."""
     try:
         from app.services.rag import get_chroma_client, COLLECTION_NAME
+        from app.scripts.ingest import ingest
         client = get_chroma_client()
-        collections = [c.name for c in client.list_collections()]
-        if COLLECTION_NAME not in collections:
-            print("Collection not found — running auto-ingestion...")
-            from app.scripts.ingest import ingest
+
+        if settings.chroma_mode == "embedded":
+            # Prod: always re-ingest to ensure fresh data after deploy
+            print("Production mode — running document ingestion...")
             ingest()
-            print("Auto-ingestion complete.")
+            print("Ingestion complete.")
         else:
-            collection = client.get_collection(COLLECTION_NAME)
-            if collection.count() == 0:
+            # Dev: only ingest if collection is missing or empty
+            collections = [c.name for c in client.list_collections()]
+            if COLLECTION_NAME not in collections or client.get_collection(COLLECTION_NAME).count() == 0:
                 print("Collection empty — running auto-ingestion...")
-                from app.scripts.ingest import ingest
                 ingest()
                 print("Auto-ingestion complete.")
             else:
+                collection = client.get_collection(COLLECTION_NAME)
                 print(f"Collection '{COLLECTION_NAME}' ready ({collection.count()} chunks).")
     except Exception as e:
-        print(f"Auto-ingestion skipped: {e}")
+        print(f"Auto-ingestion failed: {e}")
     yield
 
 
