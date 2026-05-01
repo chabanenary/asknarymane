@@ -45,7 +45,7 @@ CATEGORY_KEYWORDS = {
     "education": [
         "études", "formation", "diplôme", "école", "université", "master",
         "bac", "polytechnique", "telecom", "education", "degree", "school",
-        "studied", "study",
+        "studied", "study", "académique", "academique", "parcours", "academic",
     ],
     "projects": [
         "projet", "project", "gallerykeeper", "yologk", "asknarymane",
