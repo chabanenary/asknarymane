@@ -1,5 +1,13 @@
 # Formation — Narymane Chabane
 
+## Résumé des formations de Narymane
+Narymane a suivi les formations suivantes :
+- Lycée Sainte-Elizabeth, Alger (1996–1999) — Baccalauréat Mathématiques, Mention Bien (14,5/20)
+- École Nationale Polytechnique d'Alger (2000–2005) — Ingénieure en électronique et télécommunications, Mention Très Bien
+- Master à Télécom Paris (2006) — Dispositifs et Techniques de Communication, Mention Très Bien
+- Formation en gestion de projet — Université de Marne-la-Vallée, Paris (2007)
+- Formation continue — Machine Learning (Aurélien Géron), IA Générative, autodidacte en Android, YOLO, TensorRT, FastAPI, Docker, Kubernetes
+
 ## Lycée — Lycée Sainte-Elizabeth, Alger (1996–1999)
 - Lycée de jeunes filles très sélectif, réputé en Afrique du Nord pour sa rigueur académique et sa discipline
 - Classe spécialisée mathématiques et physique préparant le Baccalauréat Mathématiques

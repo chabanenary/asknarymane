@@ -1,5 +1,13 @@
 # Education — Narymane Chabane
 
+## Education summary of Narymane
+Narymane completed the following education and training:
+- Lycée Sainte-Elizabeth, Algiers (1996–1999) — Baccalauréat Mathematics, Honours (14.5/20)
+- École Nationale Polytechnique d'Alger (2000–2005) — Electronics & Telecommunications Engineering, First Class Honours
+- Master at Télécom Paris (2006) — Communication Devices & Techniques, First Class Honours
+- Project Management training — Université de Marne-la-Vallée, Paris (2007)
+- Continuous learning — Machine Learning (Aurélien Géron), Generative AI, self-taught in Android, YOLO, TensorRT, FastAPI, Docker, Kubernetes
+
 ## High School — Lycée Sainte-Elizabeth, Algiers (1996–1999)
 - Highly selective girls' school known across North Africa for academic rigour and discipline
 - Specialized mathematics and physics class preparing for the Baccalauréat Mathematics
