@@ -22,6 +22,12 @@ JOB_KEYWORDS = [
 # Minimum length to consider a message as a job description
 MIN_JOB_DESC_LENGTH = 150
 
+# Non-technical acronyms to ignore during keyword extraction
+_NOISE_TERMS = {
+    "cdi", "cdd", "rtt", "mba", "pdf", "ceo", "cto", "bac", "get", "post",
+    "type", "lieu", "requis", "par", "des", "les",
+}
+
 
 def is_job_matching_query(query: str) -> bool:
     """Detect if the query contains a job description for matching."""
@@ -35,22 +41,73 @@ def is_job_matching_query(query: str) -> bool:
     return False
 
 
+def extract_job_terms(job_description: str) -> list[str]:
+    """Extract technical keywords from a job description."""
+    terms: set[str] = set()
+
+    # Acronyms and uppercase terms (2+ chars): CUDA, GNSS, CNN, TCP/IP
+    for m in re.finditer(r"\b[A-Z][A-Z0-9/+#.]{1,}\b", job_description):
+        terms.add(m.group())
+
+    # CamelCase / branded terms: TensorRT, DeepStream, OpenCV, DeepSORT
+    for m in re.finditer(r"\b[A-Z][a-z]+(?:[A-Z][a-z]*)+\b", job_description):
+        terms.add(m.group())
+
+    # Known tech terms that may appear lowercase
+    tech_re = (
+        r"\b(?:python|linux|docker|git|bash|pytorch|tensorflow|opencv|"
+        r"yolo\w*|onnx|ros2?|deepstream|tensorrt|cuda|lidar|radar)\b"
+    )
+    for m in re.finditer(tech_re, job_description, re.IGNORECASE):
+        terms.add(m.group())
+
+    # Filter noise
+    terms = {t for t in terms if t.lower() not in _NOISE_TERMS and len(t) >= 2}
+    return list(terms)
+
+
+def build_job_queries(job_description: str) -> list[str]:
+    """Build targeted RAG queries from job description keywords."""
+    terms = extract_job_terms(job_description)
+    if not terms:
+        return []
+
+    # Group terms into queries of ~5 terms each
+    queries = []
+    batch: list[str] = []
+    for term in terms:
+        batch.append(term)
+        if len(batch) >= 5:
+            queries.append(" ".join(batch))
+            batch = []
+    if batch:
+        queries.append(" ".join(batch))
+
+    return queries[:4]
+
+
 def get_matching_context(job_description: str) -> dict:
     """Retrieve Narymane's full profile and format for job matching."""
 
-    # Retrieve broad profile context with multiple queries
-    queries = [
+    # Generic profile queries
+    profile_queries = [
         "compétences techniques skills programming languages",
         "expérience professionnelle experience work",
         "formation éducation education degree",
         "projets projects réalisations",
     ]
 
+    # Targeted queries extracted from the job description
+    job_queries = build_job_queries(job_description)
+
     all_context = []
     all_sources = set()
-    for q in queries:
+    seen_chunks: set[str] = set()
+
+    for q in profile_queries + job_queries:
         result = retrieve_context(q)
-        if result["context"]:
+        if result["context"] and result["context"] not in seen_chunks:
+            seen_chunks.add(result["context"])
             all_context.append(result["context"])
             all_sources.update(result["sources"])
 
