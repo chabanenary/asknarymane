@@ -11,7 +11,7 @@ class Settings(BaseSettings):
 
     # Groq (cloud)
     groq_api_key: str = ""
-    groq_model: str = "llama-3.3-70b-versatile"
+    groq_model: str = "qwen/qwen3.8-27b"
 
     # API
     api_host: str = "0.0.0.0"

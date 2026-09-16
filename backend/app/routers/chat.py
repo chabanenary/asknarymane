@@ -8,10 +8,9 @@ from app.services.agent import resolve_query
 from app.services.cv_pdf import get_cv_pdf
 
 GROQ_MODELS = [
-    {"id": "llama-3.3-70b-versatile", "name": "Llama 3.3 70B"},
-    {"id": "qwen/qwen3-32b", "name": "Qwen 3 32B"},
-    {"id": "meta-llama/llama-4-scout-17b-16e-instruct", "name": "Llama 4 Scout 17B"},
-    {"id": "llama-3.1-8b-instant", "name": "Llama 3.1 8B"},
+    {"id": "qwen/qwen3.8-27b", "name": "Qwen 3.8 27B"},
+    {"id": "openai/gpt-oss-120b", "name": "GPT OSS 120B"},
+    {"id": "openai/gpt-oss-20b", "name": "GPT OSS 20B"},
 ]
 
 router = APIRouter()
