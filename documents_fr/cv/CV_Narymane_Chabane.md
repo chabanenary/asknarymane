@@ -8,7 +8,7 @@ Sanary-sur-Mer, France | chabanenarymane@gmail.com | [LinkedIn](https://www.link
 
 ## Profil
 
-Ingénieure IA/ML avec plus de 12 ans d'expérience en R&D systèmes embarqués, désormais spécialisée dans le développement d'applications IA en production. Expertise approfondie en serving LLM, pipelines RAG, déploiement de modèles ML sur edge et cloud, et développement full-stack d'applications IA. Vision système, rigueur de production, et expérience pratique sur l'ensemble du cycle ML — de l'entraînement de modèles au déploiement Kubernetes.
+Ingénieure IA/ML avec plus de 12 ans d'expérience en R&D systèmes embarqués, désormais spécialisée dans le développement d'applications IA en production. Expertise approfondie en IA embarquée multimodale, serving LLM, pipelines RAG, déploiement de modèles ML sur edge et cloud, et développement full-stack d'applications IA. Vision système, rigueur de production, et expérience pratique sur l'ensemble du cycle ML — de l'entraînement de modèles au déploiement Kubernetes. Actuellement disponible pour des missions freelance (profil Malt).
 
 ---
 
@@ -22,7 +22,8 @@ Ingénieure IA/ML avec plus de 12 ans d'expérience en R&D systèmes embarqués,
 | **ML Serving** | FastAPI, ONNX Runtime (CPU & GPU), TensorRT |
 | **MLOps & DevOps** | Docker, Kubernetes, OpenShift, GitHub Actions, pipelines CI/CD |
 | **Programmation** | Python (5+ ans, avancé), C (10+ ans, expert), Bash, Java |
-| **Edge / Embarqué** | NVIDIA Jetson Nano, SoC ARM, noyau Linux, Yocto, RTOS VxWorks |
+| **IA Multimodale Edge** | Whisper (STT), Qwen-VL (vision), Silero (VAD), llama.cpp, Gemini, PipeWire, Librosa |
+| **Edge / Embarqué** | NVIDIA Jetson Orin Nano, Jetson Nano, SoC ARM, noyau Linux, Yocto, RTOS VxWorks |
 
 ---
 
@@ -65,6 +66,16 @@ Application Android privacy-first qui détecte et organise les photos sensibles 
 ---
 
 ## Expérience professionnelle
+
+### Ingénieure IA Embarquée — Mission Freelance (juin 2026–présent)
+- Développement d'un produit IA embarqué multimodal sur NVIDIA Jetson Orin Nano Super 8GB, du POC au prototype
+- Contribution aux choix hardware, définition de l'architecture logicielle (edge + cloud), sélection et intégration des modèles d'IA
+- Pipeline temps réel : STT (Whisper GPU), vision multimodale (Qwen-VL via llama.cpp), VAD (Silero), analyse de prosodie (Librosa)
+- Architecture hybride edge-cloud : communication Socket.IO, gateway de relais, intégration LLM cloud, TTS streaming
+- Gestion audio avancée : PipeWire, annulation d'écho, mécanisme de barge-in temps réel
+- Conteneurisation du provisioning Jetson, déploiement automatisé (systemd, udev)
+- Privacy-by-design : aucune donnée brute ne quitte le device edge
+- Résultats : latence médiane < 1s, température GPU maîtrisée (55°C), démarrage système ~30s
 
 ### Ingénieure R&D Linux Embarqué — Ekinops / OneAccess, Paris (2011–2020)
 - Pilotage du développement de la solution Virtual CPE (vCPE) sur plateformes x86 — Linux, containers Docker, CI/CD

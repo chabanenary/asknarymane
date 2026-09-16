@@ -8,7 +8,7 @@ Sanary-sur-Mer, France | chabanenarymane@gmail.com | [LinkedIn](https://www.link
 
 ## Profile
 
-AI/ML engineer with 12+ years of embedded systems R&D experience, now building production-grade AI applications. Deep expertise in LLM serving, RAG pipelines, ML model deployment on edge and cloud, and full-stack AI application development. Strong systems-level thinking, production mindset, and hands-on experience across the full ML lifecycle — from model training to Kubernetes deployment.
+AI/ML engineer with 12+ years of embedded systems R&D experience, now building production-grade AI applications. Deep expertise in embedded multimodal AI, LLM serving, RAG pipelines, ML model deployment on edge and cloud, and full-stack AI application development. Strong systems-level thinking, production mindset, and hands-on experience across the full ML lifecycle — from model training to Kubernetes deployment. Currently available for freelance missions (Malt profile).
 
 ---
 
@@ -22,7 +22,8 @@ AI/ML engineer with 12+ years of embedded systems R&D experience, now building p
 | **ML Serving** | FastAPI, ONNX Runtime (CPU & GPU), TensorRT |
 | **MLOps & DevOps** | Docker, Kubernetes, OpenShift, GitHub Actions, CI/CD pipelines |
 | **Programming** | Python (5+ years, advanced), C (10+ years, expert), Bash, Java |
-| **Edge / Embedded** | NVIDIA Jetson Nano, ARM SoCs, Linux kernel, Yocto, VxWorks RTOS |
+| **Multimodal Edge AI** | Whisper (STT), Qwen-VL (vision), Silero (VAD), llama.cpp, Gemini, PipeWire, Librosa |
+| **Edge / Embedded** | NVIDIA Jetson Orin Nano, Jetson Nano, ARM SoCs, Linux kernel, Yocto, VxWorks RTOS |
 
 ---
 
@@ -65,6 +66,16 @@ Privacy-first Android app that detects and organizes sensitive photos (nudity, c
 ---
 
 ## Professional Experience
+
+### Embedded AI Engineer — Freelance Mission (June 2026–present)
+- Development of an embedded multimodal AI product on NVIDIA Jetson Orin Nano Super 8GB, from POC to prototype
+- Contributing to hardware choices, defining software architecture (edge + cloud), selecting and integrating AI models
+- Real-time pipeline: STT (Whisper on GPU), multimodal vision (Qwen-VL via llama.cpp), VAD (Silero), prosody analysis (Librosa)
+- Hybrid edge-cloud architecture: Socket.IO communication, relay gateway, cloud LLM integration, streaming TTS
+- Advanced audio management: PipeWire, echo cancellation, real-time barge-in mechanism
+- Containerized Jetson provisioning, automated deployment (systemd, udev)
+- Privacy-by-design: no raw data leaves the edge device
+- Results: median latency < 1s, GPU temperature well managed (55°C), system startup ~30s
 
 ### Embedded Linux R&D Engineer — Ekinops / OneAccess, Paris (2011–2020)
 - Led development of Virtual CPE solution (vCPE) on x86 platforms — Linux, Docker containers, CI/CD

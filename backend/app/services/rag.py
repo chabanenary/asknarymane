@@ -41,6 +41,9 @@ CATEGORY_KEYWORDS = {
         "expérience", "experience", "travail", "poste", "emploi", "entreprise",
         "ekinops", "oneaccess", "vxworks", "embarqué", "embedded", "career",
         "job", "work", "worked", "company", "companies",
+        "actuellement", "currently", "aujourd'hui", "today", "en ce moment",
+        "en poste", "disponible", "available", "freelance", "malt", "mission",
+        "jetson", "orin", "multimodal", "edge ai", "ia embarquée",
     ],
     "education": [
         "études", "formation", "diplôme", "école", "université", "master",
@@ -80,6 +83,8 @@ def detect_categories(query: str) -> list[str]:
 KNOWN_ENTITIES = [
     "ekinops", "oneaccess", "eolices", "stmicroelectronics",
     "polytechnique", "telecom paris", "gallerykeeper", "yologk",
+    "jetson orin nano", "multimodal", "freelance", "malt",
+    "whisper", "pipewire", "silero", "llama.cpp",
 ]
 
 

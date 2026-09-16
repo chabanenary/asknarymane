@@ -31,7 +31,7 @@ Elle a démontré sa capacité à déployer le même modèle ML sur trois enviro
 Des années de coordination d'équipes offshore, de rédaction de spécifications fonctionnelles et de documents de conception ont fait de la documentation et de la clarté un réflexe. Elle écrit des articles techniques sur Dev.to pour partager son expérience avec la communauté.
 
 ## Trajectoire de carrière
-STMicroelectronics (stage, outils ASIC) → Eolices (drivers VxWorks, 2007–2011) → OneAccess/Ekinops (R&D systèmes embarqués, 2007–2020) → Transition IA/ML & inférence Edge en autodidacte (2024–2025) → Déploiement ML, LLM/RAG, Agents IA & MLOps (2025–présent)
+STMicroelectronics (stage, outils ASIC) → Eolices (drivers VxWorks, 2007–2011) → OneAccess/Ekinops (R&D systèmes embarqués, 2007–2020) → Transition IA/ML & inférence Edge en autodidacte (2024–2025) → Déploiement ML, LLM/RAG, Agents IA & MLOps (2025–2026) → IA embarquée multimodale sur Jetson Orin Nano, freelance (2026–présent)
 
 La phase actuelle de sa trajectoire se concentre sur la construction de systèmes IA complets — pas seulement l'entraînement et le déploiement de modèles ML, mais le serving de LLM, l'implémentation de pipelines RAG pour des connaissances spécifiques à un domaine, et la création d'agents IA avec des capacités d'appel d'outils via MCP (Model Context Protocol). Cela la positionne à l'intersection de l'ingénierie IA et de l'ingénierie système, où son background embarqué lui donne un avantage unique pour comprendre les contraintes de déploiement, la gestion des ressources et la fiabilité en production.
 
@@ -43,3 +43,6 @@ Le fil conducteur : passer d'un domaine technique complexe à un autre, prouvant
 - Résiliente — a quitté l'Algérie pour la France, a étudié dans l'une des meilleures écoles d'ingénieurs d'Europe, et a réussi par le travail et la détermination
 - Ouverte d'esprit, valorise le feedback constructif et l'ingénierie collaborative
 - Convaincue que la meilleure ingénierie naît quand les gens challengent ouvertement et constructivement les idées des uns et des autres
+
+## Disponibilité
+Narymane est actuellement disponible pour des missions freelance. Son profil est consultable sur Malt.

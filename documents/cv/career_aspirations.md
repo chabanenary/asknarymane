@@ -31,7 +31,7 @@ She has demonstrated the ability to deploy the same ML model across three very d
 Years of coordinating offshore teams, writing functional specifications, and authoring design documents have made documentation and clarity a reflex. She writes technical blog posts to share her experience with the community.
 
 ## Career Trajectory
-STMicroelectronics (internship, ASIC tools) → Eolices (VxWorks drivers, 2007–2011) → OneAccess/Ekinops (embedded systems R&D, 2007–2020) → Self-taught AI/ML & Edge inference (2024–2025) → ML deployment, LLM/RAG, AI Agents & MLOps (2025–present)
+STMicroelectronics (internship, ASIC tools) → Eolices (VxWorks drivers, 2007–2011) → OneAccess/Ekinops (embedded systems R&D, 2007–2020) → Self-taught AI/ML & Edge inference (2024–2025) → ML deployment, LLM/RAG, AI Agents & MLOps (2025–2026) → Embedded multimodal AI on Jetson Orin Nano, freelance (2026–present)
 
 The current phase of her trajectory focuses on building complete AI systems — not just training and deploying ML models, but serving LLMs, implementing RAG pipelines for domain-specific knowledge, and creating AI agents with tool-calling capabilities via MCP (Model Context Protocol). This positions her at the intersection of AI engineering and systems engineering, where her embedded background gives her a unique edge in understanding deployment constraints, resource management, and production reliability.
 
@@ -43,3 +43,6 @@ The common thread: moving from one complex technical domain to another, each tim
 - Resilient — moved from Algeria to France, competed in one of Europe's top engineering schools, and succeeded through hard work and determination
 - Open-minded, values constructive feedback and collaborative engineering
 - Believes the best engineering happens when people challenge each other's thinking openly
+
+## Availability
+Narymane is currently available for freelance missions. Her profile can be found on Malt.
