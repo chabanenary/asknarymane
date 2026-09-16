@@ -44,6 +44,8 @@ CATEGORY_KEYWORDS = {
         "actuellement", "currently", "aujourd'hui", "today", "en ce moment",
         "en poste", "disponible", "available", "freelance", "malt", "mission",
         "jetson", "orin", "multimodal", "edge ai", "ia embarquée",
+        "intelligence artificielle", "artificial intelligence",
+        "machine learning", "deep learning", "llm", "rag",
     ],
     "education": [
         "études", "formation", "diplôme", "école", "université", "master",
@@ -92,9 +94,9 @@ KNOWN_ENTITIES = [
 
 def rerank_score(query: str, doc: str) -> float:
     """Score a document by keyword overlap + entity presence."""
-    query_words = set(re.findall(r"\w{3,}", query.lower()))
+    query_words = set(re.findall(r"\w{2,}", query.lower()))
     doc_lower = doc.lower()
-    doc_words = set(re.findall(r"\w{3,}", doc_lower))
+    doc_words = set(re.findall(r"\w{2,}", doc_lower))
     if not query_words:
         return 0.0
     overlap = query_words & doc_words
@@ -116,7 +118,7 @@ def compress_chunk(query: str, chunk: str, max_lines: int = 15) -> str:
     if len(lines) <= max_lines:
         return "\n".join(lines)
 
-    query_words = set(re.findall(r"\w{3,}", query.lower()))
+    query_words = set(re.findall(r"\w{2,}", query.lower()))
 
     # Score each line but keep all structural elements
     scored = []
