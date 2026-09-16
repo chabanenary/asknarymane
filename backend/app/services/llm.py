@@ -50,8 +50,11 @@ async def _groq_chat(messages: list[dict], model: str) -> dict:
         completion_tokens = usage.get("completion_tokens", 0)
         total_time_ms = round(usage.get("total_time", 0) * 1000)
 
+        message = data["choices"][0]["message"]
+        content = message.get("content") or message.get("reasoning") or ""
+
         return {
-            "content": data["choices"][0]["message"]["content"],
+            "content": content,
             "prompt_tokens": prompt_tokens,
             "completion_tokens": completion_tokens,
             "total_tokens": prompt_tokens + completion_tokens,
