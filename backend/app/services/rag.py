@@ -53,6 +53,8 @@ CATEGORY_KEYWORDS = {
     "projects": [
         "projet", "project", "gallerykeeper", "yologk", "asknarymane",
         "application", "app", "github",
+        "jetson", "orin", "multimodal", "edge ai", "ia embarquée",
+        "embarqué", "embedded", "ia", "ai",
     ],
     "cv": [
         "compétence", "skill", "profil", "cv", "résumé", "contact",
