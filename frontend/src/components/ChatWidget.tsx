@@ -177,7 +177,8 @@ export default function ChatWidget() {
           </button>
         </form>
         <p className="text-center text-xs text-slate-400 mt-3">
-          Propulsé par Ollama &amp; ChromaDB — Les réponses sont basées sur le profil de Narymane
+          Propulsé par Ollama &amp; ChromaDB — Les réponses sont basées sur le profil de Narymane.
+          Merci de patienter quelques secondes entre deux questions. L&apos;assistant peut faire des erreurs.
         </p>
       </div>
     </div>
