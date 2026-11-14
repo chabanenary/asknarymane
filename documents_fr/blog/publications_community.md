@@ -23,6 +23,6 @@ Narymane est convaincue que l'open source est l'un des plus grands accélérateu
 Elle est persuadée que si l'on bénéficie de l'open source, on a la responsabilité de rendre à la communauté. C'est pourquoi elle publie ses projets sur GitHub et écrit des articles techniques — non seulement pour partager des tutoriels, mais pour documenter son expérience, l'ouvrir à la discussion, et contribuer au savoir collectif de la communauté.
 
 ## Philosophie sur la documentation
-Narymane considère que la documentation est un multiplicateur de force. Son premier principe : un projet logiciel doit commencer par la documentation, pas par le code. Chez Ekinops, elle suivait les processus CMMI Niveau 3 — en rédigeant les spécifications fonctionnelles, les documents d'architecture logicielle et les plans de tests avant l'implémentation.
+Narymane considère que la documentation est un multiplicateur de force. Son premier principe : un projet logiciel doit commencer par la documentation, pas par le code. Chez OneAccess / Ekinops, elle suivait les processus CMMI niveau 3 — en rédigeant les spécifications fonctionnelles, les documents d'architecture logicielle et les plans de tests avant l'implémentation.
 
 Elle valorise également la documentation de l'expérience elle-même — les choix de conception qui ont fonctionné, ceux qui n'ont pas fonctionné, les compromis, les surprises. Écrire sur son expérience oblige à prendre du recul, réfléchir et formuler clairement ce que l'on sait vraiment. Cette documentation réflexive fait de vous un meilleur ingénieur.

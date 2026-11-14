@@ -1,46 +1,47 @@
 # Education — Narymane Chabane
 
-## Education summary of Narymane
-Narymane completed the following education and training:
-- Lycée Sainte-Elizabeth, Algiers (1996–1999) — Baccalauréat Mathematics, Honours (14.5/20)
-- École Nationale Polytechnique d'Alger (2000–2005) — Electronics & Telecommunications Engineering, First Class Honours
-- Master at Télécom Paris (2006) — Communication Devices & Techniques, First Class Honours
-- Project Management training — Université de Marne-la-Vallée, Paris (2007)
-- Continuous learning — Machine Learning (Aurélien Géron), Generative AI, self-taught in Android, YOLO, TensorRT, FastAPI, Docker, Kubernetes
+## Summary of Narymane's Education
+Narymane completed the following education:
+- Lycée Sainte-Elizabeth, Algiers (1996–1999) — Baccalauréat in Mathematics, with honors (Mention Bien, 14.5/20)
+- École Nationale Polytechnique d'Alger (2000–2005) — Engineering degree in Electronics, highest honors (Mention Très Bien)
+- Master's degree at Télécom Paris (2006) — "Dispositifs et techniques de communication" (Communication Devices and Techniques), highest honors (Mention Très Bien)
+- Project management training — Université de Marne-la-Vallée (2007)
+- Intensive self-study (2020–2024, and ongoing since) — Python, Java/Android, machine learning, deep learning, generative AI
+- Self-taught in FastAPI, Docker/Podman, Kubernetes/OpenShift, Next.js/React, Ubuntu Core/Snap
 
 ## High School — Lycée Sainte-Elizabeth, Algiers (1996–1999)
-- Highly selective girls' school known across North Africa for academic rigour and discipline
-- Specialized mathematics and physics class preparing for the Baccalauréat Mathematics
-- Top 5 in mathematics, top-ranked in physics
-- First in class in French, English, and philosophy
+- Highly selective girls' high school, renowned in North Africa for its academic rigor and discipline
+- Specialized mathematics and physics class preparing for the Baccalauréat in Mathematics
+- Top 5 in mathematics, first in physics
+- First in her class in French, English and philosophy
 - Top 10 in Arabic
 - Passionate about French literature, philosophy (Descartes, Auguste Comte, Kant, Averroes), and the history of liberation movements (South Africa, American civil rights)
-- Sociable, easy-going, loved debating ideas
+- Sociable, approachable, loved debating ideas
 
-## Baccalauréat Mathematics — Algeria (1999)
-- Score: 14.5/20 — "Mention Bien" (Honours)
-- The Baccalauréat is Algeria's national graduation exam that concludes secondary education and determines access to university
+## Baccalauréat in Mathematics — Algeria (1999)
+- Grade: 14.5/20 — with honors (Mention Bien)
+- The Baccalauréat is the Algerian national exam that concludes secondary education and determines university admission
 - The Mathematics track had a national pass rate below 20%, making it the most selective in the country
-- This score gave access to essentially any higher education program in Algeria
+- This grade gave her access to virtually any higher education program in Algeria
 
 ## École Nationale Polytechnique d'Alger (2000–2005)
-- One of Algeria's most prestigious engineering schools
-- Admission through a highly competitive two-year preparatory program (classes préparatoires) — only the top-performing Bac holders are admitted
-- Chose electronics and telecommunications as specialization
-- Graduated with Mention Très Bien (Highest Honours)
-- Final-year project: designed and implemented a DHCP server on a System-on-Chip (SoC), with full UML modeling, translation into C, then into VHDL for hardware synthesis — a complete embedded systems project considered highly innovative for the time
+- One of the most prestigious engineering schools in Algeria
+- Admission through a highly competitive two-year preparatory program (classes préparatoires) — only the top high school graduates are admitted
+- Engineering degree in Electronics, obtained with highest honors (Mention Très Bien)
+- Final-year project: design and implementation of a DHCP server on a System-on-Chip (SoC), with complete UML modeling, translation into C, then into VHDL for hardware synthesis — a complete embedded systems project, considered highly innovative at the time
 
 ## Master's Degree — Télécom Paris (2006)
-- École Nationale Supérieure des Télécommunications, one of France's top engineering schools (now part of Institut Polytechnique de Paris)
-- Specialized Master's degree in Detection and Communication Techniques
-- Program lasted 18 months, including a 6-month internship at STMicroelectronics
-- Small cohort of about 10 students from diverse international backgrounds
-- Extremely high academic level — Narymane had to push significantly harder to keep up with classmates from some of the best programs in Europe
-- Graduated with Mention Très Bien (Highest Honours)
+- École Nationale Supérieure des Télécommunications, one of the best engineering schools in France (now part of the Institut Polytechnique de Paris)
+- Master's degree "Dispositifs et techniques de communication" (Communication Devices and Techniques)
+- 18-month program, including a 6-month final-year internship at STMicroelectronics (July to December 2006)
+- Small cohort of about ten students from diverse international backgrounds
+- Extremely high academic level — Narymane had to work twice as hard to keep pace with classmates coming from the best European programs
+- Graduated with highest honors (Mention Très Bien)
 
-## Project Management Training — Université de Marne-la-Vallée, Paris (2007)
+## Project Management Training — Université de Marne-la-Vallée (2007)
+Project management training completed in 2007. At OneAccess / Ekinops, Narymane then led projects from requirements specification to acceptance, with effort estimation and planning.
 
-## Continuous Learning
-- Hands-On Machine Learning with Scikit-Learn, Keras & TensorFlow — Aurélien Géron
-- Generative AI — Online courses & MOOCs (LLM fundamentals, prompt engineering)
-- Self-taught: Android development (Java), YOLO model training, TensorRT optimization, FastAPI, Docker, Kubernetes
+## Continuous Self-Taught AI Training (since 2020)
+- 2020–2024: intensive self-study during her parental leave — Python, Java/Android, machine learning algorithms (the book "Hands-On Machine Learning with Scikit-Learn, Keras & TensorFlow" by Aurélien Géron, MOOCs), deep learning, then generative AI (LLM fundamentals, prompt design)
+- Since 2024: continuous learning through practice, turned into published projects (Android app on the Play Store, serving API on Kubernetes, RAG assistant in production, embedded AI mission)
+- Self-taught in FastAPI, Docker/Podman, Kubernetes/OpenShift, Next.js/React, Ubuntu Core/Snap, YOLO model training, TensorRT optimization

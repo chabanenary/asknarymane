@@ -1,71 +1,67 @@
-# Embedded Multimodal AI — Freelance Mission
+# Multimodal Embedded AI — Ongoing Freelance Mission (since June 2026)
 
-## Context
-Since June 2026, Narymane has been working as a freelancer on an embedded multimodal AI product built on NVIDIA Jetson Orin Nano Super 8GB. She is involved from POC to prototype, with end-to-end product responsibility: hardware selection, software architecture, and AI model choices.
+## Mission Context
+- Client: a start-up (confidential name). Freelance contract, fully remote
+- Started on June 1, 2026; mission still ongoing in November 2026, in the phase of integrating new hardware and preparing the final prototype
+- Product: a real-time multimodal conversational product — the device listens, sees and answers by voice in under one second
+- Platform: NVIDIA Jetson Orin Nano 8 GB embedded computer, with strong memory, latency and temperature constraints, and a privacy-by-design approach
+- The names of the client, the product and the AI models used are confidential
 
-## Role & Responsibilities
-- End-to-end design and development of an embedded multimodal AI system
-- Contributing to hardware choices (edge platform, sensors, audio, video)
-- Defining the system's software architecture (edge + cloud)
-- Selecting, evaluating, and integrating AI models (STT, vision, LLM, TTS)
-- Building the complete real-time pipeline: capture → analysis → inference → output
-- Performance optimization under resource constraints (8 GB RAM, shared GPU, thermal management)
+## Narymane's Role on the Mission
+- Owner of the embedded software and on-device AI, from POC to product prototype
+- Works in tandem with the client's cloud developer, who handles the cloud AI server and the frontend 3D avatar; she is not the only developer of the product
+- Her role is software: AI, integration, validation, and advice on the choice of hardware components (she does no wiring or assembly)
 
-## Architecture & Technical Skills
+## Hybrid Edge / Cloud Architecture
+- Perception (voice and vision) processed locally on the Jetson
+- Reasoning delegated to a streaming cloud LLM
+- Only anonymized text leaves the device, never raw images or audio
 
-### Edge Computing (Jetson Orin Nano)
-- Asynchronous multi-threaded orchestration (Python asyncio + threads)
-- Real-time audio pipeline: microphone capture, echo cancellation (PipeWire AEC), voice activity detection (Silero VAD)
-- On-device Speech-to-Text with Whisper running on GPU
-- Voice prosody analysis (Librosa) for user state assessment
-- Computer vision: webcam capture (OpenCV), multimodal vision model inference (Qwen-VL via llama.cpp on GPU)
-- Advanced audio management: PipeWire, hardware echo cancellation, audio streaming, barge-in mechanism (real-time user interruption)
-- Thermal monitoring and GPU/RAM resource management
+## Real-Time Audio
+- Full-duplex pipeline with voice activity detection (ONNX model)
+- Open-source speech recognition running on the local GPU, prosody analysis
+- Local speech synthesis and streaming cloud speech synthesis, low-latency playback
+- Natural interruption of the device by the user (barge-in)
+- Software echo cancellation (PipeWire, WebRTC), then hardware echo cancellation with a microphone array: 7 configurations evaluated, 0 false triggers on the selected configuration
 
-### Hybrid Edge-Cloud Architecture
-- Real-time bidirectional communication via Socket.IO
-- Relay gateway between edge components and cloud services
-- Cloud LLM integration (Gemini) with context caching for cost optimization
-- Cloud text-to-speech with audio streaming back to edge
-- React frontend with 3D rendering (Three.js) and lip-sync
+## Bluetooth and System Audio
+- Integration and testing of Bluetooth headsets (A2DP via BlueZ / PipeWire / WirePlumber)
+- Pairing, reconnection, latency, coexistence with the microphone array
 
-### DevOps & Embedded Deployment
-- Automated Jetson provisioning (one-shot bash scripts)
-- systemd services for critical components (GPU-based STT)
-- udev rules for automatic audio configuration
-- PipeWire configuration for echo cancellation
-- Cross-build and deployment of frontend (built on Mac, deployed to Jetson)
-- Firefox kiosk mode with specific audio configuration
+## Embedded Vision
+- Camera stream analyzed in the background, without blocking the conversation
+- 2-billion-parameter vision-language model, quantized
+- Benchmark of several models of this size, 4-bit quantization
+- Migration from PyTorch to llama.cpp, freeing 1.5 to 2.5 GB of memory
 
-### Containerization & Provisioning
-- Containerized provisioning of the Jetson Orin Nano
-- Automated deployment of services and dependencies via containers
+## Orchestration and Integration
+- Python asyncio (and threads) orchestrator that routes perception to the device and reasoning to the cloud LLM
+- Sentence-by-sentence streaming, context caching
+- Session lifecycle management: start, inactivity, quota
+- Socket.IO gateway to the client's backend and to a React / Three.js interface (3D avatar synchronized with the voice)
+- Compliance with the cloud cost budget set for the product
+- Exploration of a neural audio codec: end-of-turn latency reduced from 3.7 s to 1.5 s
 
-### Privacy-by-Design
-- No raw data (images, audio) leaves the edge device
-- Only text summaries are sent to the cloud (transcriptions, descriptions)
-- Local database on tmpfs (no SSD writes)
+## Embedded System
+- JetPack 6 / L4T, CUDA, NVMe boot
+- systemd, udev, reproducible provisioning, containerization study
+- Consumer Wi-Fi provisioning: temporary access point, QR code, captive portal, NetworkManager
+
+## Observability and Reliability
+- Embedded monitoring (memory, GPU, temperatures, latencies) exposed through a JSON API and a web dashboard
+- Diagnosis and fix of a memory saturation of 5.3 GB out of 8 GB
+- Graceful degradation under thermal and memory constraints
 
 ## Measured Results
-- Median perceived latency < 1 second
-- Optimized cloud API costs (context caching)
-- Zero barge-in false positives
-- GPU temperature well managed (55-57°C, critical threshold 80°C)
-- Full system startup in ~30 seconds
+- 30-minute endurance test: 75 conversation turns, 0 crashes, 39 interruptions, 0 false positives, temperature below 65 °C
+- 2-hour endurance test: 263 turns, 0 crashes, no memory leak
+- Processing latency under 1 second
+- POC validated in three months
 
-## Technology Stack
+## Hardware Advice and Deliverables
+- Analysis of the requirements specification
+- Selection and validation of the camera, the microphone array, the 7-inch touchscreen and the Bluetooth audio
+- Cost estimates, technical reports, comparative summaries, operations documentation
 
-| Category | Technologies |
-|----------|-------------|
-| Edge Platform | NVIDIA Jetson Orin Nano Super 8GB |
-| Languages | Python, JavaScript/TypeScript, Bash |
-| AI / ML | Whisper (STT), Qwen-VL (vision), Silero (VAD), llama.cpp, Gemini |
-| Audio | PipeWire, AEC (echo cancellation), Librosa (prosody) |
-| Vision | OpenCV, llama.cpp (multimodal models) |
-| Communication | Socket.IO (real-time bidirectional) |
-| Frontend | React, Three.js (3D), Vite |
-| Infrastructure | systemd, udev, PipeWire, tmpfs, Firefox kiosk |
-| Tools | Git, SSH, SCP, Claude Code |
-
-## Availability
-Narymane is currently available for freelance missions. Her profile can be found on Malt.
+## Technical Environment of the Mission
+Python (asyncio), C, llama.cpp, ONNX Runtime, CUDA, TensorRT, PipeWire, BlueZ, NetworkManager, Socket.IO, React / Three.js, JetPack 6, systemd.

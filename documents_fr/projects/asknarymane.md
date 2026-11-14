@@ -1,85 +1,65 @@
-# Projet — IA / AskNarymane
+# Projet — IA / AskNarymane (assistant RAG multi-sources en production, 2026)
 
 ## Présentation
-AskNarymane est un chatbot alimenté par RAG qui répond aux questions des recruteurs sur le profil professionnel, les projets et l'expérience de Narymane. Il intègre un système d'agents intelligent combinant données de profil statiques, informations GitHub en temps réel, facilitation de contact, et analyse de correspondance avec des fiches de poste. C'est une vitrine portfolio et une démonstration de compétences avancées en ingénierie IA/ML.
+AskNarymane est un assistant web destiné aux recruteurs. Il répond en français ou en anglais aux questions sur le parcours, les compétences et les projets de Narymane, donne ses dépôts GitHub en temps réel, facilite la prise de contact, génère son CV en PDF et évalue l'adéquation de son profil à une fiche de poste. Narymane l'a conçu, développé, déployé et l'exploite de bout en bout. Le projet a démarré en avril 2026.
 
-GitHub : https://github.com/chabanenary/asknarymane
-Site web : https://asknarymane.com
+- Site : https://asknarymane.com
+- Dépôt : https://github.com/chabanenary/asknarymane
 
-## Architecture
-- **Fournisseur LLM** : Système dual — API Groq (Llama 3.3 70B) en production, Ollama (qwen2:1.5b) en développement local. Commutable via variable d'environnement.
-- **Modèle d'embedding** : nomic-embed-text via Ollama pour la vectorisation des documents
-- **Base vectorielle** : ChromaDB pour le stockage et la récupération des embeddings
-- **Backend** : Python FastAPI avec endpoints asynchrones pour le chat, la configuration et le health check
-- **Frontend** : Next.js / React / Tailwind CSS — interface de chat interactive avec sélecteur de modèle, rendu markdown, liens cliquables et affichage des métadonnées (sources, tokens, durée)
-- **Conteneurisation** : Docker Compose (compatible Podman) orchestrant 4 services : Ollama, ChromaDB, backend FastAPI, frontend Next.js
+## Backend
+- Python, FastAPI, Uvicorn, pydantic-settings (configuration par variables d'environnement), httpx
+- Endpoints : /chat, /health, /config (fournisseur et modèles disponibles), /cv (CV en PDF, français ou anglais)
+- Génération du CV PDF avec fpdf2 à partir d'un Markdown bilingue, polices DejaVu pour l'Unicode ; les deux PDF sont pré-générés au démarrage
+- Tests pytest des endpoints, du routage et des fonctions du pipeline RAG, avec LLM mocké
 
-## Système d'agents intelligent
-Le backend utilise un routeur d'agents qui détecte l'intention de l'utilisateur et oriente vers les sources de données appropriées :
+## Frontend
+- Next.js 16 (App Router), React 19, TypeScript
+- Tailwind CSS 4 avec le plugin typography, rendu Markdown des réponses (react-markdown), liens cliquables
+- Sélecteur de modèle LLM
+- Pour chaque réponse : affichage des sources, du modèle utilisé, du nombre de tokens et de la durée
 
-### Agent 1 — RAG (Profil)
-- Ingestion bilingue de documents (fichiers markdown anglais + français)
-- Découpage par sections H2 markdown avec préfixe contextuel
-- Détection de langue (FR/EN) avec déduplication des résultats inter-langues
-- Filtrage par catégorie (expérience, formation, projets, cv, blog)
-- Re-ranking par chevauchement de mots-clés + boost des entités connues
-- Compression du contexte pour réduire le bruit
-- Cache en mémoire (TTL 5 min)
+## Pipeline RAG
+- Base de connaissances : documents Markdown bilingues (français et anglais) découpés sur les titres de sections, avec métadonnées (source, catégorie, titre, section, langue)
+- Base vectorielle ChromaDB : embarquée dans le backend en production, serveur ChromaDB conteneurisé en développement
+- Embeddings : all-MiniLM-L6-v2 (intégré à ChromaDB) en production, nomic-embed-text via Ollama en développement
+- Recherche : détection de la langue et de la catégorie de la question, filtrage par catégorie, 12 candidats récupérés puis seuil de distance
+- Post-traitement : dédoublonnage FR/EN, re-ranking personnalisé (recouvrement lexical, bonus d'entités connues, distance), 5 extraits conservés, compression du contexte
+- Cache des requêtes en mémoire (5 minutes)
 
-### Agent 2 — GitHub (Temps réel)
-- Interroge l'API GitHub pour les dépôts publics de chabanenary
-- Retourne noms, descriptions, langages, dates de dernière mise à jour, étoiles
-- Liens markdown cliquables dans les réponses
-- Cache en mémoire (TTL 10 min) pour respecter les limites de l'API GitHub
+## Routage d'agents
+Un routeur déterministe, par mots-clés en français et en anglais, compose le contexte envoyé au LLM à partir de cinq sources :
+1. **RAG** : le profil de Narymane
+2. **GitHub** : ses dépôts publics en temps réel via l'API GitHub (forks exclus, cache de 10 minutes), avec liens cliquables
+3. **Contact** : lien mailto qui ouvre un brouillon d'email pré-rempli, et lien LinkedIn
+4. **Matching** : quand un recruteur colle une fiche de poste, extraction des termes techniques, requêtes RAG ciblées, puis rapport structuré (score de compatibilité, points forts, compétences transférables, écarts, recommandation) avec consigne de ne pas gonfler le score ; cette source est prioritaire et exclusive
+5. **CV PDF** : lien de téléchargement du CV dans la langue de la question
 
-### Agent 3 — Contact
-- Génère un lien mailto pré-rempli (sujet + corps) pour que les recruteurs contactent Narymane
-- Fournit le lien du profil LinkedIn
-- Un clic ouvre le client mail du recruteur avec un brouillon prêt à envoyer
+Le LLM ne fait pas d'appel d'outils lui-même : le routage déterministe est un choix assumé pour la fiabilité et le coût.
 
-### Agent 4 — Matching de poste
-- Détecte quand un recruteur colle une fiche de poste (analyse de mots-clés + heuristiques de longueur)
-- Récupère le profil complet de Narymane dans toutes les catégories RAG
-- Demande au LLM de générer un rapport de correspondance structuré :
-  - Score de compatibilité (pourcentage)
-  - Points forts correspondants
-  - Compétences transférables
-  - Écarts identifiés
-  - Recommandation
+## LLM et prompt
+- Production : API Groq (compatible OpenAI) avec plusieurs modèles ouverts au choix de l'utilisateur (Qwen 3.8 27B par défaut, GPT OSS 120B, GPT OSS 20B)
+- Développement : Ollama en local (Qwen2 1.5B), via son API native
+- Un seul codebase, deux modes (développement / production), pilotés par variables d'environnement
+- Prompt système strict anti-hallucination, avec réponse de repli explicite quand l'information manque ; réponse dans la langue de la question ; interdiction de communiquer ou de déduire la date de naissance ou l'âge
+- Contexte injecté sous forme d'un échange simulé avant la conversation ; fenêtre des 6 derniers messages ; enrichissement de la requête de recherche à partir des tours précédents
+- Maintenance : remplacement des modèles retirés par Groq, prise en charge du format de réponse spécifique des modèles GPT OSS ; limites de débit du free tier Groq identifiées et signalées à l'utilisateur
 
-## Compétences IA/ML démontrées
-Ce projet met en valeur les compétences IA/ML suivantes :
+## Déploiement et exploitation
+- Docker pour le backend et le frontend
+- Développement : Podman Compose avec 4 conteneurs (Ollama, ChromaDB, backend FastAPI, frontend Next.js)
+- Production : Railway avec 2 services (backend FastAPI avec ChromaDB embarqué, frontend Next.js en mode standalone), redéploiement automatique à chaque push sur GitHub
+- Domaine personnalisé asknarymane.com (DNS chez Namecheap), HTTPS
+- La base vectorielle est ré-ingérée à chaque démarrage du backend en production, ce qui garantit des données à jour après chaque déploiement
 
-- **Serving & Intégration LLM** : Abstraction multi-fournisseur LLM (Ollama local + Groq cloud), changement de modèle à la volée, consommation d'API compatible OpenAI
-- **Ingénierie de pipeline RAG** : RAG de bout en bout — ingestion de documents, stratégies de chunking, génération d'embeddings, stockage vectoriel, recherche sémantique, injection de contexte, prompt engineering
-- **Modèles d'embedding** : Déploiement et utilisation de nomic-embed-text via Ollama, implémentation custom d'EmbeddingFunction pour ChromaDB
-- **Prompt Engineering** : Conception de system prompts pour le suivi d'instructions, pattern de fake-exchange pour l'injection de contexte avec petits modèles, prompting adapté à la langue
-- **Architecture d'agents** : Détection d'intention, routage multi-sources, combinaison de contextes, génération de sorties structurées (rapports de matching)
-- **Développement d'applications IA** : Application IA full-stack (backend Python + frontend React), conception d'API asynchrone, intégration de données temps réel (API GitHub), déploiement conteneurisé
-- **Pratiques MLOps** : Configuration par environnement, sélection de modèle via UI, suivi des tokens/durée, développement piloté par les tests avec appels LLM mockés
+## Limites connues et assumées
+- Les réponses sont renvoyées en une seule fois, sans affichage progressif
+- Pas d'authentification ni de limitation de débit sur l'API
+- Base vectorielle reconstruite à chaque démarrage
+- Conversation non conservée après rechargement de la page
 
-## Base de connaissances
-La base de connaissances du chatbot est constituée des propres documents de Narymane en anglais et en français :
-- CV et profil professionnel
-- 13+ ans d'expérience chez Ekinops/OneAccess (2007–2020) : systèmes embarqués, VxWorks RTOS, Linux, Yocto, Virtual CPE
-- Postes précédents : Eolices (2007–2011), STMicroelectronics (2006–2007)
-- Projets IA/ML : GalleryKeeper (Android + YOLO), YoloGK Serving API (déploiement ML multi-plateforme), AskNarymane (chatbot RAG)
-- Formation : Polytechnique d'Alger, Télécom Paris
-- Compétences techniques
-- Articles de blog et contributions communautaires
-
-## Déploiement en production
-Ce projet est déployé en production sur asknarymane.com, démontrant la capacité de Narymane à concevoir, développer et déployer une application IA complète avec des agents intelligents en conditions réelles. Le pipeline complet — de l'ingestion de documents au serving LLM en passant par le routage d'agents — tourne en production.
-
-Narymane a conçu une architecture dual-mode qui permet au même code de tourner dans deux environnements :
-- **Développement** : Docker Compose (Podman) avec 4 containers — Ollama (embeddings + LLM), serveur ChromaDB, backend FastAPI, frontend Next.js
-- **Production** : Railway.app avec 2 services — backend FastAPI (ChromaDB embedded + API Groq), site statique Next.js (CDN)
-
-Compétences de déploiement démontrées :
-- **Déploiement cloud** : configuration Railway.app Web Service + Static Site
-- **Infrastructure as Code** : blueprint `railway.json` pour un déploiement déclaratif
-- **Configuration pilotée par l'environnement** : même code, comportement différent via variables d'environnement (LLM_PROVIDER, EMBEDDING_PROVIDER, CHROMA_MODE)
-- **Auto-ingestion** : le backend ingère automatiquement les documents au démarrage si la base vectorielle est vide
-- **Stratégie d'embedding duale** : Ollama (nomic-embed-text) en dev, ChromaDB intégré (all-MiniLM-L6-v2) en prod — aucune dépendance externe en production
-- **Export de site statique** : Next.js configuré pour le mode standalone (Docker) et l'export statique (CDN)
-- **Gestion CORS** : configuration dynamique des origines pour les environnements dev et prod
+## Compétences démontrées
+- **Ingénierie RAG** : ingestion, découpage, embeddings, recherche vectorielle, re-ranking, compression, injection de contexte
+- **Intégration LLM** : abstraction multi-fournisseur (Groq / Ollama), changement de modèle à la volée, gestion des contraintes des fournisseurs
+- **Architecture d'agents** : détection d'intention par mots-clés, composition de sources, sorties structurées (rapport de matching)
+- **Développement full-stack** : API asynchrone FastAPI, frontend Next.js / React / TypeScript
+- **Exploitation** : configuration par environnement, déploiement continu, domaine et HTTPS, tests avec LLM mocké

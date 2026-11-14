@@ -86,9 +86,11 @@ def detect_categories(query: str) -> list[str]:
 # Known entities that should boost ranking when present
 KNOWN_ENTITIES = [
     "ekinops", "oneaccess", "eolices", "stmicroelectronics",
-    "polytechnique", "telecom paris", "gallerykeeper", "yologk",
+    "polytechnique", "telecom paris", "télécom paris", "gallerykeeper", "yologk",
     "jetson orin nano", "multimodal", "freelance", "malt",
-    "whisper", "pipewire", "silero", "llama.cpp",
+    "pipewire", "llama.cpp",
+    "label studio", "open images", "chromadb", "groq",
+    "openshift", "aws", "colab", "map50",
 ]
 
 

@@ -2,104 +2,109 @@
 
 ## Informations personnelles
 - Nom complet : Narymane Chabane
-- Date de naissance : 1er novembre 1982
 - Née en : Algérie
-- Genre: Feminin
-- Nationalité: Française | Algerienne
-- Lieu de résidence : Sanary-sur-Mer, Var, Sud de la France
+- Genre : Féminin
+- Nationalité : Française | Algérienne
+- Lieu de résidence : Sanary-sur-Mer, Var, Sud de la France — fuseau horaire Europe/Paris (CET)
 - Email : chabanenarymane@gmail.com
+- LinkedIn : https://www.linkedin.com/in/narymane-chabane/
 - GitHub : github.com/chabanenary
-- Blog : Dev.to (chabanenary)
-- LinkedIn: https://www.linkedin.com/in/narymane-chabane/
-- Langues parlées : Français (langue maternelle), Arabe (langue maternelle), Anglais (courant)
-
+- Site / assistant IA : asknarymane.com
+- Blog : dev.to/chabanenary
+- Langues parlées : Français (langue maternelle), Arabe (langue maternelle), Anglais (courant, usage professionnel quotidien)
 
 ## Titre professionnel
-Ingénieure Linux Embarqué (R&D) | IoT & IA Edge | Contributrice Open Source
+Ingénieure logiciel embarqué et IA — Edge AI, LLM, systèmes fiables en production
+
+## Statut et mode de travail
+- Statut actuel : consultante freelance (auto-entrepreneure, missions notamment via Malt), ouverte aux CDI
+- Mode de travail : full remote exclusivement, depuis le sud de la France (CET)
+- Déplacements ponctuels possibles : Paris, ou sites proches de Toulon / Marseille
+- Ne recherche pas de poste sur site à temps plein, ni de poste à déplacements fréquents
+- A délibérément choisi de quitter la région parisienne pour le sud de la France, pour une meilleure qualité de vie et une vie de famille harmonieuse
+- À l'aise avec la collaboration asynchrone et les équipes distribuées
 
 ## Résumé du profil
-Narymane est ingénieure logiciel Linux embarqué avec plus de 12 ans d'expérience en R&D dans le développement de firmware et de logiciels système pour des équipements télécom de grade opérateur (CPE). Elle possède une expertise approfondie en programmation système Linux (Debian, Yocto/OpenEmbedded, développement noyau), bootloaders (U-Boot), drivers matériels bas niveau, et RTOS (VxWorks).
+Narymane est ingénieure logiciel avec 13 ans de R&D sur des équipements télécom de grade opérateur chez OneAccess / Ekinops (2007-2020) — des bootloaders et drivers jusqu'aux couches système et applicatives d'un OS de routeur virtuel sur x86. Depuis 2024, elle s'est reconvertie vers l'IA appliquée : modèles de vision entraînés et déployés sur Android, systèmes LLM/RAG et routage d'agents en production, et depuis juin 2026 l'IA embarquée temps réel (voix + vision) sur NVIDIA Jetson pour une start-up.
 
-C'est une développeuse C/C++ confirmée avec une expérience pratique couvrant tout le cycle de vie du logiciel embarqué — du board bring-up et du développement BSP à l'intégration CI/CD, aux tests automatisés, et à la coordination d'équipes offshore. Elle est une contributrice open source passionnée avec des projets publiés sur GitHub.
+Le fil conducteur de sa carrière est la fiabilité des systèmes en conditions réelles : spécifier, mesurer, tester, monitorer, et fermer la boucle entre les défaillances observées et les tests. Elle a été responsable d'un composant transverse (les bootloaders de toute l'entreprise) pendant 13 ans, lead technique d'une équipe de 4 ingénieurs, et a mené des projets du cahier des charges à la recette.
 
-Depuis 2024, elle développe activement des solutions d'inférence IA/ML pour les plateformes edge et IoT : entraînement de modèles YOLO, optimisation (ONNX, TensorRT, TFLite), et déploiement sur NVIDIA Jetson et Android — le tout en open source, hors ligne, et orienté respect de la vie privée.
+## Trois angles de positionnement
+Selon le poste, le profil de Narymane se lit sous trois angles :
+1. Ingénieure IA embarquée / Edge AI : voix et vision temps réel sur Jetson, quantization, llama.cpp, ONNX Runtime, TensorRT, TFLite.
+2. Ingénieure IA appliquée / LLM : API LLM, RAG, routage d'agents, évaluation, monitoring, FastAPI, conteneurs, Kubernetes.
+3. Ingénieure R&D Linux embarqué senior : Yocto/Debian, kernel, U-Boot, drivers, BSP, VxWorks, qualité CMMI niveau 3.
 
-Plus récemment, elle développe des compétences en déploiement ML et MLOps : mise en service de modèles via des API REST FastAPI, conteneurisation avec Docker, et déploiement sur Kubernetes/OpenShift.
+## Compétences techniques — Langages
+- C (13 ans, niveau expert) — langage principal tout au long de sa carrière
+- C++ (niveau opérationnel) — débogage de stacks réseau, projets système
+- Python — asyncio, FastAPI, pytest ; IA/ML, API, automatisation. Utilisé en production chez OneAccess / Ekinops (2019-2020), puis pour tous ses projets IA
+- Java — développement Android (application GalleryKeeper)
+- Bash / Shell (plus de 10 ans) — automatisation de builds, CI/CD
+- Perl, SQL, TypeScript / React
+- Assembleur PowerPC (fonctionnel) — extraction de pile d'exception
 
-Elle construit actuellement une expérience pratique avec les LLM (Ollama, Mistral, Qwen), les pipelines RAG (LangChain, ChromaDB, embeddings), et les agents IA avec MCP (Model Context Protocol) — étendant ses compétences en IA de l'inférence edge vers des applications IA complètes.
+## Compétences techniques — IA embarquée et on-device
+- PyTorch, YOLO (entraînement, évaluation, déploiement), TensorFlow Lite / LiteRT, ONNX Runtime, TensorRT, CUDA
+- llama.cpp, quantization (4 bits, GGUF)
+- OpenCV, GStreamer
+- NVIDIA Jetson (Nano, Orin Nano), Android
 
-## Compétences techniques
+## Compétences techniques — IA appliquée et LLM
+- API LLM : Groq (API compatible OpenAI), Ollama (inférence locale), LLM cloud en streaming
+- RAG : ChromaDB, embeddings, re-ranking, compression de contexte
+- Routage d'agents déterministe, conception de prompts
+- Évaluation : benchmarks à protocole défini, tests avec LLM mocké, suivi des tokens, de la latence et des erreurs
+- Orchestration local / cloud (perception sur l'appareil, raisonnement dans le cloud)
 
-### Langages de programmation
-- C (10+ ans, niveau expert) — langage principal tout au long de sa carrière
-- Python (5+ ans, avancé) — IA/ML, FastAPI, LangChain, ONNX Runtime, pytest, automatisation. Projets clés : AskNarymane (chatbot RAG), YoloGK Serving API (déploiement ML sur CPU, Jetson Nano, Kubernetes), agents MCP
-- Java (confirmé) — développement Android (application GalleryKeeper)
-- Bash/Shell scripting (10+ ans) — automatisation de builds, CI/CD
-- C++ (intermédiaire) — débogage de stacks réseau, projets système
-- Assembleur (PowerPC, fonctionnel) — extraction de pile d'exception
+## Compétences techniques — Évaluation et amélioration de modèles
+- Constitution, nettoyage et dédoublonnage de datasets, détection de fuites entre entraînement et validation
+- Annotation (Label Studio), données synthétiques, ré-entraînement itératif
+- Métriques : mAP, précision et rappel par classe
+- Vérification de parité entre formats de modèle (PyTorch vs TFLite)
+- Analyse des erreurs de bout en bout, modèle et post-traitement
 
-### Systèmes Linux
-- Debian/Ubuntu, Yocto/OpenEmbedded (couches BSP, recettes, bitbake)
-- Configuration et patching du noyau, device tree, systemd
-- U-Boot (configuration, portage, personnalisation), GRUB
-- Mécanismes de mise à jour firmware, concepts de boot sécurisé
+## Compétences techniques — Audio et temps réel
+- Pipelines audio full-duplex, détection d'activité vocale, reconnaissance et synthèse vocales
+- Annulation d'écho logicielle et matérielle, barge-in (interruption naturelle)
+- PipeWire / ALSA, Bluetooth A2DP (BlueZ, WirePlumber)
 
-### RTOS
+## Compétences techniques — Linux embarqué et RTOS
+- Yocto / OpenEmbedded (couches BSP, recettes, BitBake), Debian / Ubuntu
+- Kernel : configuration, patchs, device tree ; systemd, udev, NetworkManager
+- U-Boot (configuration, portage, personnalisation), GRUB, mise à jour firmware, secure boot
+- Cross-compilation, packaging Debian, bring-up et BSP
 - VxWorks : multitâche temps réel, ordonnancement par priorité, gestion des interruptions, IPC, synchronisation, timers, mutex, sémaphores, évitement des deadlocks
 
-### Drivers & BSP
-- Ethernet, transceivers SFP, Wi-Fi, 4G/LTE, contrôleurs mémoire, GPIO, LEDs, gestion d'alimentation, NAND Flash, watchdog
+## Compétences techniques — Drivers, cibles et réseau
+- Drivers : Ethernet, transceivers SFP, Wi-Fi, 4G/LTE, xDSL, mémoire, NAND Flash, GPIO, LEDs, alimentation, watchdog
+- Processeurs et cibles : NXP/Freescale PowerPC et QorIQ (P1021, T1040), MIPS, ARM, x86 embarqué et virtualisé
+- Réseau : TCP/IP, xDSL, ATM/QoS, DHCP, DNS, SIP, HTTP/REST, RTSP, Wi-Fi, Ethernet, Socket.IO / WebSocket ; connaissance de MQTT
 
-### IA/ML & Inférence Edge
-- TensorFlow/TFLite, TensorRT, ONNX, OpenCV, YOLO11 (entraînement, optimisation, déploiement on-device)
-- FastAPI pour le serving de modèles, inférence ONNX Runtime
+## Compétences techniques — Déploiement, observabilité et outils
+- Déploiement et cloud : Docker, Podman, Kubernetes, OpenShift (déployé sur AWS), Railway, GitHub Actions, Jenkins, Make / CMake
+- Gestion de versions : Git, SVN, Mercurial ; suivi : Jira, Bugzilla
+- Entraînement sur GPU cloud (Google Colab)
+- Observabilité et fiabilité : monitoring de ressources et de latences (API JSON, tableaux de bord), journalisation structurée, crash logs, tests d'endurance, non-régression, boucle défauts automatisée
+- Débogage : GDB cross / gdbserver, Lauterbach Trace32, BDI2000, CodeWarrior, Valgrind, strace, ltrace, perf, NVIDIA Nsight
 
-### LLM, RAG & Agents IA (en cours de développement)
-- Serving LLM : Ollama (Mistral 7B, Qwen2.5), inférence locale sur Apple Silicon
-- RAG (Retrieval Augmented Generation) : LangChain, ChromaDB, modèles d'embedding (nomic-embed-text)
-- Agents IA : serveurs MCP (Model Context Protocol) et appel d'outils (tool calling)
-- Ingénierie de prompts, gestion de conversations, réponses en streaming
-- Intégration d'API LLM : API Ollama, API Groq (compatible OpenAI)
-
-### CI/CD & DevOps
-- Git, SVN, Mercurial, Jenkins, GitHub Actions
-- Docker, Kubernetes, OpenShift
-- Pipelines de build automatisés, tests d'intégration, workflows de revue de code
-
-### Réseaux
-- TCP/IP, xDSL, DHCP, HTTP/REST, RTSP, MQTT, SIP, commutation Ethernet, Wi-Fi, 4G/LTE
-
-### Plateformes matérielles
-- NVIDIA Jetson Nano, SoC ARM (Freescale/NXP QorIQ), plateformes embarquées x86
-- Équipements CPE (routeurs, passerelles, répéteurs)
-
-### Outils de débogage
-- GDB (cross-compilé, gdbserver), Lauterbach Trace32, BDI2000, CodeWarrior
-- Valgrind, strace, ltrace, perf, dmesg, NVIDIA Nsight
+## Compétences techniques — Méthode et gestion
+- Processus qualité CMMI niveau 3 : spécifications, plans de test, matrices de conformité, UML/SDL
+- Revues de code, chiffrage et planification, lead technique, coordination d'équipes offshore
+- Rédaction technique et synthèses comparatives pour décideurs
 
 ## Expérience Python
-Narymane a plus de 5 ans d'expérience pratique en Python à un niveau avancé. Python est son langage principal pour le développement IA/ML, la conception d'API et l'automatisation.
+Python est le langage principal de Narymane pour l'IA/ML, la conception d'API et l'automatisation. Elle l'a utilisé en production chez OneAccess / Ekinops (OS du routeur virtuel, 2019-2020), l'a approfondi en autodidacte à partir de 2020, et l'utilise au quotidien depuis pour tous ses projets IA.
 
 ### Projets clés en Python
-- **AskNarymane** : Chatbot RAG construit avec FastAPI, LangChain, ChromaDB et intégration LLM Groq/Ollama
-- **YoloGK Serving API** : Serving de modèle ML via FastAPI + ONNX Runtime, déployé sur CPU, NVIDIA Jetson Nano (GPU) et Kubernetes/OpenShift
-- **Agents MCP** : Serveurs d'agents IA construits avec le SDK Python MCP et FastAPI
-
-### Frameworks & bibliothèques Python
-- **Web/API** : FastAPI, Uvicorn, Pydantic
-- **IA/ML** : LangChain, ChromaDB, ONNX Runtime, TensorFlow, OpenCV, Pillow
-- **Tests** : pytest
-- **DevOps** : Docker, scripting, automatisation
+- **Mission freelance IA embarquée (2026)** : orchestrateur temps réel en Python asyncio (et threads) sur NVIDIA Jetson Orin Nano
+- **AskNarymane** : assistant RAG en production — FastAPI, ChromaDB, Groq / Ollama, pytest
+- **YoloGK Serving API** : serving d'un modèle YOLO11 via FastAPI + ONNX Runtime sur CPU, Jetson Nano et Kubernetes / OpenShift
+- **Entraînement et évaluation de modèles** : pipelines d'entraînement YOLO11 (Ultralytics, PyTorch) et d'évaluation pour GalleryKeeper
 
 ### Ce qu'elle sait faire en Python
 - Concevoir et développer des API REST asynchrones avec FastAPI
-- Construire des pipelines RAG (ingestion, embedding, retrieval, re-ranking)
-- Servir des modèles ML via des endpoints REST avec fallback GPU/CPU
-- Écrire du code Python propre, testé et prêt pour la production
-- Conteneuriser des applications Python avec Docker
-
-## Préférences de travail
-- Travail 100% à distance — a délibérément choisi de quitter Paris pour le sud de la France pour une meilleure qualité de vie et une vie de famille harmonieuse
-- À l'aise avec la collaboration asynchrone et les équipes distribuées mondialement
-- Ouverte aux déplacements pour les sprints d'équipe et les événements
-- Bonne communicante, bien organisée, autonome et motivée
+- Écrire des orchestrateurs temps réel avec asyncio
+- Construire des pipelines RAG (ingestion, embeddings, retrieval, re-ranking)
+- Servir des modèles ML via des endpoints REST avec repli GPU / CPU
+- Écrire du code testé (pytest, LLM mocké) et le conteneuriser avec Docker / Podman

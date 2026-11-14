@@ -1,54 +1,41 @@
-# Project — AI/ YoloGK Serving API (Multi-Platform ML Deployment)
+# Project — AI / YoloGK Serving API (multi-platform ML deployment, 2026)
 
 ## Overview
-A suite of projects demonstrating multi-platform deployment of Narymane's custom-trained YOLO11 GalleryKeeper model via a REST API. The same model and application code are deployed across three different environments, showcasing MLOps best practices.
+YoloGK serves the GalleryKeeper YOLO11 detection model, trained by Narymane, through a REST API, following the "write once, deploy everywhere" principle: the same model and the same application code are deployed on CPU, on NVIDIA Jetson Nano and on Kubernetes / OpenShift. Only the Dockerfile and the deployment configuration change per target.
 
-## Three Deployment Targets
+## 3-Tier Architecture
+- Nginx as the front end
+- FastAPI API running the YOLO11 model through ONNX Runtime
+- PostgreSQL 16 database
 
-### 1. yoloGK-serving-api — CPU/Mac Deployment
+## Target 1 — CPU (yoloGK-serving-api)
 GitHub: https://github.com/chabanenary/yoloGK-serving-api
-
-- FastAPI REST API serving the GalleryKeeper YOLO11 model
-- ONNX Runtime for inference (CPU)
-- Containerized with Docker
-- Designed for development, testing, and cloud deployment
-- Endpoints: /health, /device, /classify, /classify/batch
+- FastAPI API serving the YOLO11 model through ONNX Runtime (CPU)
+- Containerized with Docker; Docker / Podman Compose
 - Automatic Swagger documentation at /docs
 - Tests with pytest
+- Stack: Python, FastAPI, ONNX Runtime, Pillow, Docker, pytest
 
-Tech stack: Python, FastAPI, ONNX Runtime, Pillow, Docker, pytest
-
-### 2. yoloGK-jetson-serving-api — Jetson Nano GPU Deployment
+## Target 2 — NVIDIA Jetson Nano GPU (yoloGK-jetson-serving-api)
 GitHub: https://github.com/chabanenary/yoloGK-jetson-serving-api
+- Same FastAPI application, adapted to the Jetson Nano
+- GPU-accelerated inference through ONNX Runtime with CUDA / TensorRT
+- Based on the NVIDIA L4T (Linux for Tegra) Docker image, container with the nvidia runtime
+- Automatic GPU detection: CUDA if available, CPU fallback otherwise
+- Optimized for constrained hardware (4 GB of RAM, Maxwell GPU), with FPS profiling under thermal constraints
 
-- Same FastAPI application adapted for NVIDIA Jetson Nano
-- GPU-accelerated inference via ONNX Runtime with CUDA/TensorRT
-- Based on NVIDIA L4T (Linux for Tegra) Docker image
-- Automatic GPU detection: uses CUDA if available, falls back to CPU
-- Optimized for constrained hardware (4GB RAM, Maxwell GPU)
-- Docker container with nvidia runtime
-
-Tech stack: Python, FastAPI, ONNX Runtime GPU, CUDA, TensorRT, Docker, NVIDIA L4T
-
-### 3. yoloGK-kubernetes-serving-api — Kubernetes/OpenShift Deployment
+## Target 3 — Kubernetes and OpenShift on AWS (yoloGK-kubernetes-serving-api)
 GitHub: https://github.com/chabanenary/yoloGK-kubernetes-serving-api
-
-- Kubernetes deployment manifests for the serving API
-- Deployment with replicas, resource limits, liveness/readiness probes
-- Service configuration with ClusterIP
-- OpenShift Route for external access
-- Designed for production-grade orchestrated deployment
-
-Tech stack: Kubernetes, OpenShift, Docker, YAML manifests
+- Kubernetes and OpenShift deployed on an AWS server
+- Manifests organized with kustomize: Deployment with replicas, HPA (horizontal autoscaling), liveness / readiness probes, resource limits
+- NetworkPolicy, persistent volumes (PV / PVC), ClusterIP Service
+- External access through a Kubernetes ingress and an OpenShift route
 
 ## API Endpoints (common to all deployments)
-- GET /health — Liveness probe, reports model status
-- GET /device — Returns GPU/CUDA availability and active inference provider
-- POST /classify — Classify a single image (upload + confidence threshold)
-- POST /classify/batch — Classify multiple images in one request, returns per-image results and summary
-
-## Architecture
-The model (ONNX format) is identical across all three deployments. The application code (FastAPI + inference logic) is also identical. Only the Dockerfile and deployment configuration change per target. This demonstrates a key MLOps pattern: write once, deploy everywhere.
+- GET /health — liveness probe, reports the model status
+- GET /device — GPU / CUDA availability and active inference provider
+- POST /classify — classifies one image (upload + confidence threshold)
+- POST /classify/batch — classifies several images in one request, with per-image results and a summary
 
 ## What This Proves
-Narymane can take a trained ML model and deploy it across the full spectrum of environments: local development (Mac/CPU), edge device with GPU (Jetson Nano), and cloud orchestration (Kubernetes/OpenShift). This is exactly the skillset expected of an ML deployment engineer or MLOps engineer.
+Narymane can take an ML model she trained and deploy it across the full spectrum of environments: local development (CPU), GPU edge device (Jetson Nano) and cloud orchestration (Kubernetes / OpenShift on AWS), with a complete 3-tier architecture. This is exactly the skill set expected from an ML deployment or MLOps engineer.

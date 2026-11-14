@@ -23,6 +23,6 @@ Narymane believes open source is one of the greatest accelerators in software en
 She believes that if you benefit from open source, you have a responsibility to give back. This is why she publishes her projects on GitHub and writes technical blog posts — not just to share how-to instructions, but to document her experience, open it to discussion, and contribute to the collective knowledge of the community.
 
 ## Philosophy on Documentation
-Narymane believes documentation is a force multiplier. Her first principle: a software project should start with documentation, not code. At Ekinops, she followed CMMI Level 3 processes — writing functional specifications, software architecture documents, and test plans before implementation.
+Narymane believes documentation is a force multiplier. Her first principle: a software project should start with documentation, not code. At OneAccess / Ekinops, she followed CMMI Level 3 processes — writing functional specifications, software architecture documents, and test plans before implementation.
 
 She also values documenting the experience itself — the design choices that worked, the ones that didn't, the tradeoffs, the surprises. Writing about experience forces you to step back, reflect, and articulate what you actually know. This reflective documentation makes you a better engineer.
