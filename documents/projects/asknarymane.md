@@ -6,11 +6,79 @@ AskNarymane is a web assistant for recruiters. It answers in French or English q
 - Website: https://asknarymane.com
 - Repository: https://github.com/chabanenary/asknarymane
 
+## How It Works in Brief: the Path of a Question
+In one sentence: AskNarymane first sorts the question with keywords, gathers the useful information from several sources, then calls the LLM only once, at the very end, to write the answer.
+1. The recruiter asks a question on the website (Next.js), which sends the conversation to the server (FastAPI)
+2. The router reads the question and chooses which of five sources to consult: RAG (profile), GitHub, contact, job description matching, CV PDF
+3. Each selected source produces information; it is all gathered into a single "context"
+4. The server makes a single call to the LLM with the rules, the context and the end of the conversation
+5. The answer goes back to the website with the sources used, the model, the number of tokens and the duration
+
+## The Router: the Conductor
+- Role: decide which sources to consult for each question
+- How it works: it looks for keywords in the question, in French and English ("github", "contact", "cv", "job description"…). No AI makes this decision: it is a list of rules, so it is fast, free and predictable
+- If the question contains a word that refers back to the conversation ("ça", "cela", "this", "that"…) and there have already been exchanges, it adds the 2 previous messages to the search to understand it better
+- Job description matching takes priority: when it triggers, it works alone
+- RAG is consulted for every question, except a pure contact request
+- Model call: none. The LLM does not call tools itself: deterministic routing is a deliberate choice for reliability and cost
+
+## Source 1 — RAG: Narymane's Profile
+- Role: find the passages of the profile that answer the question
+- Step 1: detection of the question's language (French or English) and topic (experience, education, projects, CV, blog)
+- Step 2: the question is turned into a vector by the embedding model
+- Step 3: search for the 12 closest passages in ChromaDB, filtered by topic; if the filter returns nothing, a new search without the filter
+- Step 4: passages that are too distant are discarded; when a passage exists in both French and English, only the language of the question is kept
+- Step 5: re-ranking by words shared with the question, presence of known names (companies, schools, projects) and distance; the best 5 are kept and the longest are shortened
+- The result is kept in memory for 5 minutes for identical questions
+- Model call: yes, to the embedding model, not the LLM — all-MiniLM-L6-v2, built into ChromaDB, in production; nomic-embed-text via Ollama in development
+
+## Source 2 — GitHub: Projects in Real Time
+- Role: list Narymane's public repositories (github.com/chabanenary)
+- How it works: query to the GitHub API, forks excluded, formatting of the name, description, language, last update date and a clickable link
+- The result is kept in memory for 10 minutes
+- Model call: none
+
+## Source 3 — Contact
+- Role: help the recruiter write to Narymane
+- How it works: a ready-made text with an email link that opens a pre-filled draft (subject and message), plus the link to her LinkedIn profile
+- Model call: none
+
+## Source 4 — Job Description Matching
+- Role: assess whether Narymane's profile fits a position
+- Detection: the recruiter pasted a job description (at least 3 typical words such as "missions" or "requirements", or a long text containing at least one of them)
+- How it works: extraction of the technical terms of the offer (Python, CUDA, Kubernetes…), then up to 8 searches in the profile (4 general ones and up to 4 targeted at those terms)
+- It prepares an instruction for a 5-point report: compatibility score, strengths, transferable skills, gaps, recommendation, with the instruction not to inflate the score
+- Model call: to the embedding model for each search; the LLM writes the report during the final call
+
+## Source 5 — CV PDF
+- Role: provide Narymane's CV as a PDF
+- How it works: when the CV is requested, a download link in the language of the question is added to the context, with the instruction to include it in the answer
+- Both PDFs (French and English) are built with fpdf2 from the CV Markdown files as soon as the server starts
+- Model call: none
+
+## The Final LLM Call: the Only One per Question
+The server assembles a message that contains:
+- the rules: use only the information provided, invent nothing, answer "Cette information n'est pas disponible dans mon contexte" (this information is not available in my context) when it is missing, answer in the language of the question, never give or guess her date of birth or age
+- the context gathered by the sources, presented as an exchange that already took place before the conversation
+- the last 6 messages of the conversation
+
+Then it makes a single call to the LLM:
+- in production: Groq API (OpenAI-compatible), with Qwen 3.8 27B by default, or GPT OSS 120B / GPT OSS 20B if the recruiter picks another one in the selector
+- in development: Ollama running locally (Qwen2 1.5B), through its native API
+
+## At Server Startup
+- Ingestion: the profile documents (French and English) are split into sections, turned into vectors by the embedding model, then stored in ChromaDB with their source, topic, section and language
+- In production, ingestion runs again at every startup, which guarantees up-to-date data after each deployment; in development, only if the database is empty
+- Both CV PDFs are generated and kept in memory
+- Model call: the embedding model, once per section; not the LLM
+
 ## Backend
 - Python, FastAPI, Uvicorn, pydantic-settings (configuration through environment variables), httpx
 - Endpoints: /chat, /health, /config (provider and available models), /cv (CV as a PDF, French or English)
-- CV PDF generation with fpdf2 from a bilingual Markdown file, DejaVu fonts for Unicode; both PDFs are pre-generated at startup
-- pytest tests of the endpoints, the routing and the RAG pipeline functions, with a mocked LLM
+- ChromaDB vector database: embedded in the server in production, containerized ChromaDB server in development
+- A single codebase, two modes (development / production), driven by environment variables
+- pytest tests of the endpoints, the routing and the RAG pipeline functions, with a simulated LLM
+- Maintenance: replacement of models retired by Groq, support for the specific response format of the GPT OSS models; Groq free-tier rate limits identified and signaled to the user
 
 ## Frontend
 - Next.js 16 (App Router), React 19, TypeScript
@@ -18,38 +86,22 @@ AskNarymane is a web assistant for recruiters. It answers in French or English q
 - LLM model selector
 - For each answer: display of the sources, the model used, the number of tokens and the duration
 
-## RAG Pipeline
-- Knowledge base: bilingual Markdown documents (French and English) split on section headings, with metadata (source, category, title, section, language)
-- ChromaDB vector database: embedded in the backend in production, containerized ChromaDB server in development
-- Embeddings: all-MiniLM-L6-v2 (built into ChromaDB) in production, nomic-embed-text via Ollama in development
-- Search: detection of the question's language and category, category filtering, 12 candidates retrieved then a distance threshold
-- Post-processing: FR/EN deduplication, custom re-ranking (lexical overlap, known-entity bonus, distance), 5 excerpts kept, context compression
-- In-memory query cache (5 minutes)
-
-## Agent Routing
-A deterministic, keyword-based router in French and English builds the context sent to the LLM from five sources:
-1. **RAG**: Narymane's profile
-2. **GitHub**: her public repositories in real time through the GitHub API (forks excluded, 10-minute cache), with clickable links
-3. **Contact**: a mailto link that opens a pre-filled email draft, and a LinkedIn link
-4. **Matching**: when a recruiter pastes a job description, extraction of technical terms, targeted RAG queries, then a structured report (compatibility score, strengths, transferable skills, gaps, recommendation) with an instruction not to inflate the score; this source takes priority and is exclusive
-5. **CV PDF**: download link for the CV in the language of the question
-
-The LLM does not call tools itself: deterministic routing is a deliberate choice for reliability and cost.
-
-## LLM and Prompt
-- Production: Groq API (OpenAI-compatible) with several open models selectable by the user (Qwen 3.8 27B by default, GPT OSS 120B, GPT OSS 20B)
-- Development: Ollama running locally (Qwen2 1.5B), through its native API
-- A single codebase, two modes (development / production), driven by environment variables
-- Strict anti-hallucination system prompt, with an explicit fallback answer when information is missing; answers in the language of the question; never disclose or deduce her date of birth or age
-- Context injected as a simulated exchange before the conversation; window of the last 6 messages; enrichment of the search query from previous turns
-- Maintenance: replacement of models retired by Groq, support for the specific response format of the GPT OSS models; Groq free-tier rate limits identified and signaled to the user
+## Technologies Used
+| Part | Technologies |
+|------|-------------|
+| Website | Next.js 16, React 19, TypeScript, Tailwind CSS 4, react-markdown |
+| Server | Python, FastAPI, Uvicorn, pydantic-settings, httpx |
+| Search | ChromaDB; all-MiniLM-L6-v2 embeddings (production) and nomic-embed-text (development) |
+| LLM | Groq API (production), Ollama (development) |
+| PDF | fpdf2, DejaVu fonts |
+| Tests | pytest, with a simulated LLM |
+| Hosting | Docker; Podman Compose locally; Railway in production |
 
 ## Deployment and Operations
-- Docker for the backend and the frontend
-- Development: Podman Compose with 4 containers (Ollama, ChromaDB, FastAPI backend, Next.js frontend)
-- Production: Railway with 2 services (FastAPI backend with embedded ChromaDB, Next.js frontend in standalone mode), automatic redeployment on every push to GitHub
+- Docker for the server and the website
+- Development: Podman Compose with 4 containers (Ollama, ChromaDB, FastAPI server, Next.js website)
+- Production: Railway with 2 services (FastAPI server with embedded ChromaDB, Next.js website in standalone mode), automatic redeployment on every push to GitHub
 - Custom domain asknarymane.com (DNS at Namecheap), HTTPS
-- The vector database is re-ingested at every backend startup in production, which guarantees up-to-date data after each deployment
 
 ## Known and Accepted Limitations
 - Responses are returned in one piece, without progressive display
@@ -61,5 +113,5 @@ The LLM does not call tools itself: deterministic routing is a deliberate choice
 - **RAG engineering**: ingestion, chunking, embeddings, vector search, re-ranking, compression, context injection
 - **LLM integration**: multi-provider abstraction (Groq / Ollama), on-the-fly model switching, handling of provider constraints
 - **Agent architecture**: keyword-based intent detection, source composition, structured outputs (matching report)
-- **Full-stack development**: asynchronous FastAPI API, Next.js / React / TypeScript frontend
-- **Operations**: environment-based configuration, continuous deployment, domain and HTTPS, tests with a mocked LLM
+- **Full-stack development**: asynchronous FastAPI API, Next.js / React / TypeScript website
+- **Operations**: environment-based configuration, continuous deployment, domain and HTTPS, tests with a simulated LLM
