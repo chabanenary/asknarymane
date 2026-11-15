@@ -1,4 +1,4 @@
-# Projet — IA / AskNarymane (assistant RAG multi-sources en production, 2026)
+# Projet — IA / AskNarymane (assistant RAG multi-agents en production, 2026)
 
 ## Présentation
 AskNarymane est un assistant web destiné aux recruteurs. Il répond en français ou en anglais aux questions sur le parcours, les compétences et les projets de Narymane, donne ses dépôts GitHub en temps réel, facilite la prise de contact, génère son CV en PDF et évalue l'adéquation de son profil à une fiche de poste. Narymane l'a conçu, développé, déployé et l'exploite de bout en bout. Le projet a démarré en avril 2026.
@@ -7,22 +7,22 @@ AskNarymane est un assistant web destiné aux recruteurs. Il répond en françai
 - Dépôt : https://github.com/chabanenary/asknarymane
 
 ## Fonctionnement en bref : le parcours d'une question
-En une phrase : AskNarymane trie d'abord la question avec des mots-clés, rassemble les informations utiles depuis plusieurs sources, puis appelle le LLM une seule fois, à la toute fin, pour rédiger la réponse.
+En une phrase : AskNarymane repose sur 5 agents spécialisés (RAG, GitHub, contact, matching, CV), orchestrés par un routeur déterministe à mots-clés ; le LLM est appelé une seule fois, à la fin, pour rédiger la réponse.
 1. Le recruteur pose sa question sur le site web (Next.js), qui envoie la conversation au serveur (FastAPI)
-2. Le routeur lit la question et choisit les sources à consulter parmi cinq : RAG (profil), GitHub, contact, matching avec une fiche de poste, CV PDF
-3. Chaque source choisie produit des informations ; elles sont regroupées en un seul « contexte »
+2. Le routeur lit la question et choisit les agents à solliciter parmi cinq : RAG (profil), GitHub, contact, matching avec une fiche de poste, CV PDF
+3. Chaque agent sollicité produit des informations ; elles sont regroupées en un seul « contexte »
 4. Le serveur fait un seul appel au LLM avec les règles, le contexte et la fin de la conversation
 5. La réponse revient au site avec les sources utilisées, le modèle, le nombre de tokens et la durée
 
 ## Le routeur : le chef d'orchestre
-- Rôle : décider quelles sources consulter pour chaque question
+- Rôle : décider quels agents solliciter pour chaque question
 - Fonctionnement : il cherche des mots-clés dans la question, en français et en anglais (« github », « contact », « cv », « fiche de poste »…). Ce n'est pas une IA qui décide : c'est une liste de règles, donc rapide, gratuite et prévisible
 - Si la question contient un mot qui renvoie à ce qui précède (« ça », « cela », « this », « that »…) et qu'il y a déjà eu des échanges, il ajoute les 2 messages précédents à la recherche pour mieux la comprendre
-- Le matching avec une fiche de poste est prioritaire : quand il se déclenche, il travaille seul
-- Le RAG est consulté pour toutes les questions, sauf une demande de contact pure
+- L'agent matching est prioritaire : quand il se déclenche, il travaille seul
+- L'agent RAG est sollicité pour toutes les questions, sauf une demande de contact pure
 - Appel au modèle : aucun. Le LLM ne fait pas d'appel d'outils lui-même : le routage déterministe est un choix assumé pour la fiabilité et le coût
 
-## Source 1 — RAG : le profil de Narymane
+## Agent 1 — RAG : le profil de Narymane
 - Rôle : retrouver les passages du profil qui répondent à la question
 - Étape 1 : détection de la langue de la question (français ou anglais) et de son thème (expérience, formation, projets, CV, blog)
 - Étape 2 : la question est transformée en vecteur par le modèle d'embeddings
@@ -32,25 +32,25 @@ En une phrase : AskNarymane trie d'abord la question avec des mots-clés, rassem
 - Le résultat est gardé 5 minutes en mémoire pour les questions identiques
 - Appel au modèle : oui, au modèle d'embeddings, pas au LLM — all-MiniLM-L6-v2, intégré à ChromaDB, en production ; nomic-embed-text via Ollama en développement
 
-## Source 2 — GitHub : les projets en temps réel
+## Agent 2 — GitHub : les projets en temps réel
 - Rôle : lister les dépôts publics de Narymane (github.com/chabanenary)
 - Fonctionnement : interrogation de l'API GitHub, forks écartés, mise en forme du nom, de la description, du langage, de la date de dernière mise à jour et d'un lien cliquable
 - Le résultat est gardé 10 minutes en mémoire
 - Appel au modèle : aucun
 
-## Source 3 — Contact
+## Agent 3 — Contact
 - Rôle : aider le recruteur à écrire à Narymane
 - Fonctionnement : un texte tout prêt avec un lien email qui ouvre un brouillon pré-rempli (sujet et message), plus le lien de son profil LinkedIn
 - Appel au modèle : aucun
 
-## Source 4 — Matching avec une fiche de poste
+## Agent 4 — Matching avec une fiche de poste
 - Rôle : évaluer si le profil de Narymane correspond à un poste
 - Détection : le recruteur a collé une fiche de poste (au moins 3 mots typiques comme « missions » ou « requirements », ou un texte long contenant au moins l'un d'eux)
 - Fonctionnement : extraction des termes techniques de l'offre (Python, CUDA, Kubernetes…), puis jusqu'à 8 recherches dans le profil (4 générales et jusqu'à 4 ciblées sur ces termes)
 - Il prépare une consigne pour un rapport en 5 points : score de compatibilité, points forts, compétences transférables, écarts, recommandation, avec l'instruction de ne pas gonfler le score
 - Appel au modèle : au modèle d'embeddings pour chaque recherche ; c'est le LLM qui rédige le rapport, lors de l'appel final
 
-## Source 5 — CV PDF
+## Agent 5 — CV PDF
 - Rôle : donner le CV de Narymane en PDF
 - Fonctionnement : quand on demande le CV, un lien de téléchargement est ajouté au contexte, dans la langue de la question, avec la consigne de l'inclure dans la réponse
 - Les deux PDF (français et anglais) sont fabriqués avec fpdf2 à partir des fichiers Markdown du CV, dès le démarrage du serveur
@@ -59,7 +59,7 @@ En une phrase : AskNarymane trie d'abord la question avec des mots-clés, rassem
 ## L'appel final au LLM : le seul de la question
 Le serveur assemble un message qui contient :
 - les règles : n'utiliser que les informations fournies, ne rien inventer, répondre « Cette information n'est pas disponible dans mon contexte » quand elle manque, répondre dans la langue de la question, ne jamais donner ni deviner la date de naissance ou l'âge
-- le contexte rassemblé par les sources, présenté comme un échange déjà fait avant la conversation
+- le contexte rassemblé par les agents, présenté comme un échange déjà fait avant la conversation
 - les 6 derniers messages de la conversation
 
 Puis il fait un seul appel au LLM :
@@ -112,6 +112,6 @@ Puis il fait un seul appel au LLM :
 ## Compétences démontrées
 - **Ingénierie RAG** : ingestion, découpage, embeddings, recherche vectorielle, reclassement, compression, injection de contexte
 - **Intégration LLM** : abstraction multi-fournisseur (Groq / Ollama), changement de modèle à la volée, gestion des contraintes des fournisseurs
-- **Architecture d'agents** : détection d'intention par mots-clés, composition de sources, sorties structurées (rapport de matching)
+- **Architecture d'agents** : routeur déterministe par mots-clés orchestrant 5 agents spécialisés, sorties structurées (rapport de matching)
 - **Développement full-stack** : API asynchrone FastAPI, site Next.js / React / TypeScript
 - **Exploitation** : configuration par environnement, déploiement continu, domaine et HTTPS, tests avec un LLM simulé

@@ -9,7 +9,7 @@
 ## Projets IA et développement Android en indépendante (septembre 2024 – mai 2026)
 De septembre 2024 à mai 2026, Narymane a construit un portfolio public d'applications d'IA en production, en parallèle de sa formation continue. Trois projets principaux :
 - **GalleryKeeper** : application Android avec un modèle de vision embarqué, publiée sur le Play Store (plus de 1 000 téléchargements)
-- **AskNarymane** : assistant RAG multi-sources en production sur asknarymane.com
+- **AskNarymane** : assistant RAG multi-agents en production sur asknarymane.com
 - **YoloGK** : API de serving du modèle de vision de GalleryKeeper sur CPU, Jetson et Kubernetes / OpenShift
 
 ## Pipelines vidéo sur Jetson Nano (2024 – 2026)

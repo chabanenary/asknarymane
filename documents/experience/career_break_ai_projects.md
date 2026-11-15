@@ -9,7 +9,7 @@
 ## Independent AI and Android Development Projects (September 2024 – May 2026)
 From September 2024 to May 2026, Narymane built a public portfolio of AI applications in production, alongside her continuous learning. Three main projects:
 - **GalleryKeeper**: Android app with an embedded vision model, published on the Play Store (over 1,000 downloads)
-- **AskNarymane**: multi-source RAG assistant in production at asknarymane.com
+- **AskNarymane**: multi-agent RAG assistant in production at asknarymane.com
 - **YoloGK**: serving API for the GalleryKeeper vision model on CPU, Jetson and Kubernetes / OpenShift
 
 ## Video Pipelines on Jetson Nano (2024 – 2026)

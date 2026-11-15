@@ -1,7 +1,7 @@
 # LLMs, RAG and Agent Routing — Applied AI Skills
 
 ## Context
-Since 2026, Narymane has been building and operating LLM-based systems in real-world conditions. It is the logical continuation of her AI journey: after training and deploying vision models (YOLO on Android, Jetson Nano and Kubernetes), she designed AskNarymane, a multi-source RAG assistant in production, then, on a freelance mission, the real-time orchestration between embedded perception and a cloud LLM.
+Since 2026, Narymane has been building and operating LLM-based systems in real-world conditions. It is the logical continuation of her AI journey: after training and deploying vision models (YOLO on Android, Jetson Nano and Kubernetes), she designed AskNarymane, a multi-agent RAG assistant in production, then, on a freelance mission, the real-time orchestration between embedded perception and a cloud LLM.
 
 ## LLM API Integration
 - Groq API (OpenAI-compatible) in production, with several open models selectable by the user
@@ -25,7 +25,7 @@ RAG augments a general-purpose LLM with domain-specific knowledge: relevant docu
 - FR/EN deduplication, custom re-ranking (lexical overlap, known-entity bonus, distance), context compression, query caching
 
 ## Agent Routing
-- In AskNarymane, a deterministic keyword-based router (FR/EN) builds the context from five sources: RAG, real-time GitHub repositories, contact, job description matching, CV PDF generation
+- In AskNarymane, a deterministic keyword-based router (FR/EN) orchestrates 5 specialized agents: RAG, real-time GitHub repositories, contact, job description matching, CV PDF generation; the LLM is called only once, at the end
 - The LLM does not call tools itself: deterministic routing is a deliberate choice for reliability and cost
 - On her embedded AI mission, the Python asyncio orchestrator routes perception to the device and reasoning to the cloud LLM
 

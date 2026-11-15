@@ -22,7 +22,7 @@ Recruteur
    ▼
 Site web (Next.js) ───────▶ Serveur (FastAPI)
                                │
-                  1. Le ROUTEUR lit la question et choisit les sources
+                  1. Le ROUTEUR lit la question et choisit les agents
                                │
         ┌──────────┬───────────┼───────────┬──────────┐
         ▼          ▼           ▼           ▼          ▼
@@ -36,23 +36,25 @@ Site web (Next.js) ───────▶ Serveur (FastAPI)
               Réponse + sources + modèle + tokens + durée
 ```
 
-Le point clé : **le LLM n'est appelé qu'une seule fois par question, à la toute fin**. Avant lui, tout est fait par du code classique : un routeur à base de mots-clés et des recherches dans une base de données. C'est rapide, peu coûteux et prévisible.
+AskNarymane repose sur **5 agents spécialisés** (RAG, GitHub, contact, matching, CV), **orchestrés par un routeur déterministe à mots-clés**.
 
-## Le routeur et les 5 sources
+Le point clé : **le LLM n'est appelé qu'une seule fois par question, à la toute fin**. Avant lui, tout est fait par du code classique : le routeur et les agents. C'est rapide, peu coûteux et prévisible.
 
-**Le routeur** cherche des mots-clés dans la question, en français et en anglais (« github », « contact », « cv », « fiche de poste »…), et décide quelles sources consulter. Ce n'est pas une IA qui décide, c'est une liste de règles.
+## Le routeur et les 5 agents
 
-| Source | Ce qu'elle fait | Appelle un modèle ? |
+**Le routeur** cherche des mots-clés dans la question, en français et en anglais (« github », « contact », « cv », « fiche de poste »…), et décide quels agents solliciter. Ce n'est pas une IA qui décide, c'est une liste de règles.
+
+| Agent | Ce qu'il fait | Appelle un modèle ? |
 |---|---|---|
-| **RAG** (profil) | Cherche dans le profil les 5 passages les plus proches de la question | Oui, le **modèle d'embeddings** (pas le LLM) |
-| **GitHub** | Liste les dépôts publics de [chabanenary](https://github.com/chabanenary) via l'API GitHub (cache de 10 min) | Non |
-| **Contact** | Fournit un lien email avec un brouillon pré-rempli et le lien LinkedIn | Non |
-| **Matching** | Détecte une fiche de poste, en extrait les termes techniques et lance jusqu'à 8 recherches dans le profil. Le LLM rédige ensuite le rapport. | Oui, le **modèle d'embeddings** pour les recherches |
-| **CV** | Ajoute un lien de téléchargement du CV en PDF, dans la langue de la question | Non |
+| **Agent 1 — RAG** (profil) | Cherche dans le profil les 5 passages les plus proches de la question | Oui, le **modèle d'embeddings** (pas le LLM) |
+| **Agent 2 — GitHub** | Liste les dépôts publics de [chabanenary](https://github.com/chabanenary) via l'API GitHub (cache de 10 min) | Non |
+| **Agent 3 — Contact** | Fournit un lien email avec un brouillon pré-rempli et le lien LinkedIn | Non |
+| **Agent 4 — Matching** | Détecte une fiche de poste, en extrait les termes techniques et lance jusqu'à 8 recherches dans le profil. Le LLM rédige ensuite le rapport. | Oui, le **modèle d'embeddings** pour les recherches |
+| **Agent 5 — CV** | Ajoute un lien de téléchargement du CV en PDF, dans la langue de la question | Non |
 
-Quand une fiche de poste est détectée, le matching passe en priorité et travaille seul.
+Quand une fiche de poste est détectée, l'agent matching passe en priorité et travaille seul.
 
-### Comment fonctionne la recherche RAG
+### Comment travaille l'agent RAG
 
 1. Le serveur détecte la **langue** de la question (FR/EN) et son **thème** (expérience, formation, projets, CV, blog).
 2. Le **modèle d'embeddings** transforme la question en vecteur.
@@ -65,7 +67,7 @@ Quand une fiche de poste est détectée, le matching passe en priorité et trava
 
 Le serveur envoie au LLM, en un seul appel :
 - **des règles strictes** : n'utiliser que le contexte fourni, ne rien inventer, répondre dans la langue de la question, ne jamais donner ni deviner l'âge ;
-- **le contexte** rassemblé par les sources ;
+- **le contexte** rassemblé par les agents ;
 - **les 6 derniers messages** de la conversation.
 
 ## Technologies
@@ -198,14 +200,14 @@ asknarymane/
 │   │   ├── config.py         # Variables d'environnement (mode local / prod)
 │   │   ├── routers/chat.py   # Endpoints /chat, /health, /config, /cv + règles envoyées au LLM
 │   │   ├── services/
-│   │   │   ├── agent.py      # Le routeur : choisit les sources selon les mots-clés
-│   │   │   ├── rag.py        # Recherche dans le profil (ChromaDB)
+│   │   │   ├── agent.py      # Le routeur : choisit les agents selon les mots-clés
+│   │   │   ├── rag.py        # Agent RAG : recherche dans le profil (ChromaDB)
 │   │   │   ├── embeddings.py # Choix du modèle d'embeddings
 │   │   │   ├── llm.py        # Appel au LLM (Groq ou Ollama)
-│   │   │   ├── github.py     # Source GitHub
-│   │   │   ├── contact.py    # Source contact
-│   │   │   ├── matching.py   # Source matching avec une fiche de poste
-│   │   │   └── cv_pdf.py     # Génération des CV PDF
+│   │   │   ├── github.py     # Agent GitHub
+│   │   │   ├── contact.py    # Agent contact
+│   │   │   ├── matching.py   # Agent matching avec une fiche de poste
+│   │   │   └── cv_pdf.py     # Agent CV : génération des CV PDF
 │   │   └── scripts/ingest.py # Chargement des documents dans ChromaDB
 │   ├── tests/                # Tests pytest
 │   └── Dockerfile            # Image du serveur en local

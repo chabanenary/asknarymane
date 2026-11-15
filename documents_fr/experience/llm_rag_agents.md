@@ -1,7 +1,7 @@
 # LLM, RAG et routage d'agents — Compétences en IA appliquée
 
 ## Contexte
-Depuis 2026, Narymane construit et exploite des systèmes à base de LLM en conditions réelles. C'est la suite logique de son parcours en IA : après l'entraînement et le déploiement de modèles de vision (YOLO sur Android, Jetson Nano et Kubernetes), elle a conçu AskNarymane, un assistant RAG multi-sources en production, puis, en mission freelance, l'orchestration temps réel entre perception embarquée et LLM cloud.
+Depuis 2026, Narymane construit et exploite des systèmes à base de LLM en conditions réelles. C'est la suite logique de son parcours en IA : après l'entraînement et le déploiement de modèles de vision (YOLO sur Android, Jetson Nano et Kubernetes), elle a conçu AskNarymane, un assistant RAG multi-agents en production, puis, en mission freelance, l'orchestration temps réel entre perception embarquée et LLM cloud.
 
 ## Intégration d'API LLM
 - API Groq (compatible OpenAI) en production, avec plusieurs modèles ouverts sélectionnables par l'utilisateur
@@ -25,7 +25,7 @@ Le RAG augmente un LLM généraliste avec des connaissances spécifiques à un d
 - Dédoublonnage FR/EN, re-ranking personnalisé (recouvrement lexical, bonus d'entités connues, distance), compression du contexte, cache des requêtes
 
 ## Routage d'agents
-- Dans AskNarymane, un routeur déterministe par mots-clés (FR/EN) compose le contexte à partir de cinq sources : RAG, dépôts GitHub en temps réel, contact, matching avec une fiche de poste, génération de CV PDF
+- Dans AskNarymane, un routeur déterministe par mots-clés (FR/EN) orchestre 5 agents spécialisés : RAG, dépôts GitHub en temps réel, contact, matching avec une fiche de poste, génération de CV PDF ; le LLM est appelé une seule fois, à la fin
 - Le LLM ne fait pas d'appel d'outils lui-même : le routage déterministe est un choix assumé pour la fiabilité et le coût
 - Sur sa mission IA embarquée, l'orchestrateur Python asyncio route la perception vers l'appareil et le raisonnement vers le LLM cloud
 

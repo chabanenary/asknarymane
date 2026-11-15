@@ -1,4 +1,4 @@
-# Project — AI / AskNarymane (multi-source RAG assistant in production, 2026)
+# Project — AI / AskNarymane (multi-agent RAG assistant in production, 2026)
 
 ## Overview
 AskNarymane is a web assistant for recruiters. It answers in French or English questions about Narymane's background, skills and projects, shows her GitHub repositories in real time, makes it easy to get in touch, generates her CV as a PDF and evaluates how well her profile matches a job description. Narymane designed, built and deployed it, and operates it end to end. The project started in April 2026.
@@ -7,22 +7,22 @@ AskNarymane is a web assistant for recruiters. It answers in French or English q
 - Repository: https://github.com/chabanenary/asknarymane
 
 ## How It Works in Brief: the Path of a Question
-In one sentence: AskNarymane first sorts the question with keywords, gathers the useful information from several sources, then calls the LLM only once, at the very end, to write the answer.
+In one sentence: AskNarymane relies on 5 specialized agents (RAG, GitHub, contact, matching, CV), orchestrated by a deterministic keyword-based router; the LLM is called only once, at the end, to write the answer.
 1. The recruiter asks a question on the website (Next.js), which sends the conversation to the server (FastAPI)
-2. The router reads the question and chooses which of five sources to consult: RAG (profile), GitHub, contact, job description matching, CV PDF
-3. Each selected source produces information; it is all gathered into a single "context"
+2. The router reads the question and chooses which of five agents to call on: RAG (profile), GitHub, contact, job description matching, CV PDF
+3. Each agent called on produces information; it is all gathered into a single "context"
 4. The server makes a single call to the LLM with the rules, the context and the end of the conversation
 5. The answer goes back to the website with the sources used, the model, the number of tokens and the duration
 
 ## The Router: the Conductor
-- Role: decide which sources to consult for each question
+- Role: decide which agents to call on for each question
 - How it works: it looks for keywords in the question, in French and English ("github", "contact", "cv", "job description"…). No AI makes this decision: it is a list of rules, so it is fast, free and predictable
 - If the question contains a word that refers back to the conversation ("ça", "cela", "this", "that"…) and there have already been exchanges, it adds the 2 previous messages to the search to understand it better
-- Job description matching takes priority: when it triggers, it works alone
-- RAG is consulted for every question, except a pure contact request
+- The matching agent takes priority: when it triggers, it works alone
+- The RAG agent is called on for every question, except a pure contact request
 - Model call: none. The LLM does not call tools itself: deterministic routing is a deliberate choice for reliability and cost
 
-## Source 1 — RAG: Narymane's Profile
+## Agent 1 — RAG: Narymane's Profile
 - Role: find the passages of the profile that answer the question
 - Step 1: detection of the question's language (French or English) and topic (experience, education, projects, CV, blog)
 - Step 2: the question is turned into a vector by the embedding model
@@ -32,25 +32,25 @@ In one sentence: AskNarymane first sorts the question with keywords, gathers the
 - The result is kept in memory for 5 minutes for identical questions
 - Model call: yes, to the embedding model, not the LLM — all-MiniLM-L6-v2, built into ChromaDB, in production; nomic-embed-text via Ollama in development
 
-## Source 2 — GitHub: Projects in Real Time
+## Agent 2 — GitHub: Projects in Real Time
 - Role: list Narymane's public repositories (github.com/chabanenary)
 - How it works: query to the GitHub API, forks excluded, formatting of the name, description, language, last update date and a clickable link
 - The result is kept in memory for 10 minutes
 - Model call: none
 
-## Source 3 — Contact
+## Agent 3 — Contact
 - Role: help the recruiter write to Narymane
 - How it works: a ready-made text with an email link that opens a pre-filled draft (subject and message), plus the link to her LinkedIn profile
 - Model call: none
 
-## Source 4 — Job Description Matching
+## Agent 4 — Job Description Matching
 - Role: assess whether Narymane's profile fits a position
 - Detection: the recruiter pasted a job description (at least 3 typical words such as "missions" or "requirements", or a long text containing at least one of them)
 - How it works: extraction of the technical terms of the offer (Python, CUDA, Kubernetes…), then up to 8 searches in the profile (4 general ones and up to 4 targeted at those terms)
 - It prepares an instruction for a 5-point report: compatibility score, strengths, transferable skills, gaps, recommendation, with the instruction not to inflate the score
 - Model call: to the embedding model for each search; the LLM writes the report during the final call
 
-## Source 5 — CV PDF
+## Agent 5 — CV PDF
 - Role: provide Narymane's CV as a PDF
 - How it works: when the CV is requested, a download link in the language of the question is added to the context, with the instruction to include it in the answer
 - Both PDFs (French and English) are built with fpdf2 from the CV Markdown files as soon as the server starts
@@ -59,7 +59,7 @@ In one sentence: AskNarymane first sorts the question with keywords, gathers the
 ## The Final LLM Call: the Only One per Question
 The server assembles a message that contains:
 - the rules: use only the information provided, invent nothing, answer "Cette information n'est pas disponible dans mon contexte" (this information is not available in my context) when it is missing, answer in the language of the question, never give or guess her date of birth or age
-- the context gathered by the sources, presented as an exchange that already took place before the conversation
+- the context gathered by the agents, presented as an exchange that already took place before the conversation
 - the last 6 messages of the conversation
 
 Then it makes a single call to the LLM:
@@ -112,6 +112,6 @@ Then it makes a single call to the LLM:
 ## Skills Demonstrated
 - **RAG engineering**: ingestion, chunking, embeddings, vector search, re-ranking, compression, context injection
 - **LLM integration**: multi-provider abstraction (Groq / Ollama), on-the-fly model switching, handling of provider constraints
-- **Agent architecture**: keyword-based intent detection, source composition, structured outputs (matching report)
+- **Agent architecture**: deterministic keyword-based router orchestrating 5 specialized agents, structured outputs (matching report)
 - **Full-stack development**: asynchronous FastAPI API, Next.js / React / TypeScript website
 - **Operations**: environment-based configuration, continuous deployment, domain and HTTPS, tests with a simulated LLM

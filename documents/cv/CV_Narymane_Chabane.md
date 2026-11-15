@@ -72,11 +72,11 @@ Software engineer with 13 years of R&D on carrier-grade telecom equipment at One
 - Evaluation audit (train/validation leakage, shifted annotations) and dataset rebuilt from 2,530 to 6,712 images: mAP50 from 0.657 to 0.746
 - Diagnosis of the app's decision chain: identity documents and bank cards correctly classified from 81-83% to 98%, TFLite / PyTorch parity verified
 
-### AskNarymane — Multi-Source RAG Assistant in Production (2026)
+### AskNarymane — Multi-Agent RAG Assistant in Production (2026)
 [asknarymane.com](https://asknarymane.com) | [GitHub](https://github.com/chabanenary/asknarymane)
 
 - Assistant for recruiters, in French and English: RAG over a bilingual profile, real-time GitHub repositories, contact, CV PDF, matching against a job description
-- Deterministic routing across five sources; strict anti-hallucination prompt
+- 5 specialized agents (RAG, GitHub, contact, matching, CV) orchestrated by a deterministic keyword-based router; LLM called only once; strict anti-hallucination prompt
 - FastAPI, ChromaDB, Groq API (production) and Ollama (development), Next.js 16, React 19, TypeScript, Tailwind CSS 4
 - Docker, Podman Compose, production on Railway with continuous deployment, custom domain and HTTPS
 

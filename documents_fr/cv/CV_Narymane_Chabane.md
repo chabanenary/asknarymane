@@ -72,11 +72,11 @@ Ingénieure logiciel avec 13 ans de R&D sur des équipements télécom de grade 
 - Audit de l'évaluation (fuites train/validation, annotations décalées) et dataset reconstruit de 2 530 à 6 712 images : mAP50 de 0,657 à 0,746
 - Diagnostic de la chaîne de décision de l'application : documents d'identité et cartes bancaires correctement classés de 81-83 % à 98 %, parité TFLite / PyTorch vérifiée
 
-### AskNarymane — Assistant RAG multi-sources en production (2026)
+### AskNarymane — Assistant RAG multi-agents en production (2026)
 [asknarymane.com](https://asknarymane.com) | [GitHub](https://github.com/chabanenary/asknarymane)
 
 - Assistant pour recruteurs, en français et en anglais : RAG sur un profil bilingue, dépôts GitHub en temps réel, contact, CV PDF, matching avec une fiche de poste
-- Routage déterministe entre cinq sources ; prompt strict anti-hallucination
+- 5 agents spécialisés (RAG, GitHub, contact, matching, CV) orchestrés par un routeur déterministe à mots-clés ; LLM appelé une seule fois ; prompt strict anti-hallucination
 - FastAPI, ChromaDB, API Groq (production) et Ollama (développement), Next.js 16, React 19, TypeScript, Tailwind CSS 4
 - Docker, Podman Compose, production sur Railway avec déploiement continu, domaine personnalisé et HTTPS
 
