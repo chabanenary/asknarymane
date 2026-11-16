@@ -42,26 +42,26 @@ CATEGORY_KEYWORDS = {
     "experience": [
         "expérience", "experience", "travail", "poste", "emploi", "entreprise",
         "ekinops", "oneaccess", "vxworks", "embarqué", "embedded", "career",
-        "job", "work", "worked", "company", "companies",
+        "job", "jobs", "work", "worked", "company", "companies",
         "actuellement", "currently", "aujourd'hui", "today", "en ce moment",
         "en poste", "disponible", "available", "freelance", "malt", "mission",
         "jetson", "orin", "multimodal", "edge ai", "ia embarquée",
         "intelligence artificielle", "artificial intelligence",
-        "machine learning", "deep learning", "llm", "rag",
+        "machine learning", "deep learning", "llm", "llms", "rag",
     ],
     "education": [
         "études", "formation", "diplôme", "école", "université", "master",
         "bac", "polytechnique", "telecom", "education", "degree", "school",
-        "studied", "study", "académique", "academique", "parcours", "academic",
+        "studied", "study", "académique", "academique", "academic",
     ],
     "projects": [
         "projet", "project", "gallerykeeper", "yologk", "asknarymane",
-        "application", "app", "github",
+        "application", "app", "apps", "github",
         "jetson", "orin", "multimodal", "edge ai", "ia embarquée",
         "embarqué", "embedded", "ia", "ai",
     ],
     "cv": [
-        "compétence", "skill", "profil", "cv", "résumé", "contact",
+        "compétence", "skill", "cv", "résumé", "contact",
         "langue", "language", "aspiration",
         "python", "langage", "programming", "fastapi", "docker",
         "kubernetes", "linux", "niveau", "level",
@@ -72,14 +72,20 @@ CATEGORY_KEYWORDS = {
     ],
 }
 
+# General questions ("décrire son parcours", "her background") point to the profile
+# summary and the experience, unless a more specific category was detected
+OVERVIEW_KEYWORDS = ["parcours", "background", "profil"]
+OVERVIEW_CATEGORIES = ["cv", "experience"]
+
 
 def contains_keyword(text: str, keyword: str) -> bool:
     """Match a keyword at the start of a word: "projet" matches "projets", "écrire" doesn't match "décrire".
 
-    Keywords of 2 letters or less (ia, ai, cv) must be whole words, so "fait" doesn't match "ai".
+    Keywords of 3 letters or less (ia, ai, cv, bac, job) must be whole words,
+    so "fait" doesn't match "ai" and "background" doesn't match "bac".
     """
     pattern = rf"\b{re.escape(keyword)}"
-    if len(keyword) <= 2:
+    if len(keyword) <= 3:
         pattern += r"\b"
     return re.search(pattern, text) is not None
 
@@ -91,6 +97,8 @@ def detect_categories(query: str) -> list[str]:
     for category, keywords in CATEGORY_KEYWORDS.items():
         if any(contains_keyword(query_lower, kw) for kw in keywords):
             matched.append(category)
+    if not matched and any(contains_keyword(query_lower, kw) for kw in OVERVIEW_KEYWORDS):
+        matched = list(OVERVIEW_CATEGORIES)
     return matched
 
 

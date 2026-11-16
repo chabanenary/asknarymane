@@ -81,6 +81,14 @@ class TestDetectCategories:
         assert "projects" in detect_categories("quels projets d'IA ?")
         assert "projects" in detect_categories("has she built AI-powered apps?")
 
+    def test_general_question_points_to_profile_and_experience(self):
+        assert detect_categories("peux-tu décrire son parcours ?") == ["cv", "experience"]
+        assert detect_categories("can you describe her background?") == ["cv", "experience"]
+
+    def test_specific_category_wins_over_general_words(self):
+        assert detect_categories("quel est son parcours académique ?") == ["education"]
+        assert detect_categories("what is her academic background?") == ["education"]
+
 
 class TestContainsKeyword:
     def test_matches_word_start(self):
@@ -92,6 +100,10 @@ class TestContainsKeyword:
     def test_short_keyword_whole_word_only(self):
         assert contains_keyword("son cv", "cv") is True
         assert contains_keyword("elle a fait", "ai") is False
+
+    def test_three_letter_keyword_whole_word_only(self):
+        assert contains_keyword("bac+5", "bac") is True
+        assert contains_keyword("her background", "bac") is False
 
 
 class TestRerankScore:
