@@ -10,11 +10,13 @@ from unittest.mock import patch, MagicMock
 import pytest
 
 from app.services.rag import (
+    contains_keyword,
     detect_language,
     detect_categories,
     rerank_score,
     compress_chunk,
     deduplicate,
+    retrieve_context,
 )
 
 
@@ -70,6 +72,26 @@ class TestDetectCategories:
         cats = detect_categories("her experience and education")
         assert "experience" in cats
         assert "education" in cats
+
+    def test_short_keyword_inside_word_ignored(self):
+        # "fait" contains "ai" but is not about AI projects
+        assert "projects" not in detect_categories("où a-t-elle fait son stage ?")
+
+    def test_short_keyword_as_word(self):
+        assert "projects" in detect_categories("quels projets d'IA ?")
+        assert "projects" in detect_categories("has she built AI-powered apps?")
+
+
+class TestContainsKeyword:
+    def test_matches_word_start(self):
+        assert contains_keyword("ses projets", "projet") is True
+
+    def test_ignores_middle_of_word(self):
+        assert contains_keyword("peux-tu décrire son parcours", "écrire") is False
+
+    def test_short_keyword_whole_word_only(self):
+        assert contains_keyword("son cv", "cv") is True
+        assert contains_keyword("elle a fait", "ai") is False
 
 
 class TestRerankScore:
@@ -134,3 +156,47 @@ class TestDeduplicate:
         ]
         result = deduplicate(docs, preferred_lang="fr")
         assert len(result) == 2
+
+
+class TestRetrieveFallback:
+    @patch("app.services.rag.get_collection")
+    def test_retries_without_category_when_nothing_close_enough(self, mock_get_collection):
+        too_far = {
+            "documents": [["unrelated project chunk"]],
+            "metadatas": [[{"source": "projects/other.md", "section": "Other", "lang": "fr"}]],
+            "distances": [[9.0]],
+        }
+        close = {
+            "documents": [["[experience] Stage — STMicroelectronics"]],
+            "metadatas": [[{"source": "experience/ekinops_oneaccess.md", "section": "Stage", "lang": "fr"}]],
+            "distances": [[0.5]],
+        }
+        collection = MagicMock()
+        collection.query.side_effect = [too_far, close]
+        mock_get_collection.return_value = collection
+
+        result = retrieve_context("test repli : ses projets et son stage")
+
+        assert result["sources"] == ["experience/ekinops_oneaccess.md"]
+        assert collection.query.call_args_list[0].kwargs["where"] == {"category": "projects"}
+        assert collection.query.call_args_list[1].kwargs["where"] is None
+
+    @patch("app.services.rag.get_collection")
+    def test_language_filter_kept_in_fallback(self, mock_get_collection):
+        empty = {"documents": [[]], "metadatas": [[]], "distances": [[]]}
+        close = {
+            "documents": [["[cv] Profil > Langages"]],
+            "metadatas": [[{"source": "cv/profile.md", "section": "Langages", "lang": "fr"}]],
+            "distances": [[0.5]],
+        }
+        collection = MagicMock()
+        collection.query.side_effect = [empty, close]
+        mock_get_collection.return_value = collection
+
+        retrieve_context("second essai : ses projets", lang="fr")
+
+        assert collection.query.call_args_list[0].kwargs["where"] == {
+            "$and": [{"category": "projects"}, {"lang": "fr"}]
+        }
+        assert collection.query.call_args_list[1].kwargs["where"] == {"lang": "fr"}
+

@@ -2,7 +2,7 @@
 
 import re
 
-from app.services.rag import retrieve_context
+from app.services.rag import detect_language, retrieve_context
 
 # Keywords that suggest the user is pasting a job description
 JOB_KEYWORDS = [
@@ -21,6 +21,10 @@ JOB_KEYWORDS = [
 
 # Minimum length to consider a message as a job description
 MIN_JOB_DESC_LENGTH = 150
+
+# Profile size sent for matching (about 3,000 tokens): keeps the whole request
+# well under the Groq free-tier limit of 8,000 tokens per minute
+MAX_PROFILE_CHARS = 12000
 
 # Non-technical acronyms to ignore during keyword extraction
 _NOISE_TERMS = {
@@ -42,28 +46,43 @@ def is_job_matching_query(query: str) -> bool:
 
 
 def extract_job_terms(job_description: str) -> list[str]:
-    """Extract technical keywords from a job description."""
-    terms: set[str] = set()
+    """Extract technical keywords from a job description, in order of appearance."""
+    found: list[tuple[int, str]] = []
 
     # Acronyms and uppercase terms (2+ chars): CUDA, GNSS, CNN, TCP/IP
     for m in re.finditer(r"\b[A-Z][A-Z0-9/+#.]{1,}\b", job_description):
-        terms.add(m.group())
+        found.append((m.start(), m.group()))
 
-    # CamelCase / branded terms: TensorRT, DeepStream, OpenCV, DeepSORT
-    for m in re.finditer(r"\b[A-Z][a-z]+(?:[A-Z][a-z]*)+\b", job_description):
-        terms.add(m.group())
+    # Mixed-case / branded terms: TensorRT, OpenCV, PyTorch, GStreamer, MLOps
+    for m in re.finditer(r"\b[A-Za-z][A-Za-z0-9]*\b", job_description):
+        word = m.group()
+        if any(c.isupper() for c in word[1:]) and any(c.islower() for c in word):
+            found.append((m.start(), word))
 
-    # Known tech terms that may appear lowercase
+    # Languages written with symbols: C++, C#
+    for m in re.finditer(r"(?<!\w)C(?:\+\+|#)(?!\w)", job_description):
+        found.append((m.start(), m.group()))
+
+    # Known tech terms that may appear lowercase or as plain capitalized words
     tech_re = (
         r"\b(?:python|linux|docker|git|bash|pytorch|tensorflow|opencv|"
-        r"yolo\w*|onnx|ros2?|deepstream|tensorrt|cuda|lidar|radar)\b"
+        r"yolo\w*|onnx|ros2?|deepstream|tensorrt|cuda|lidar|radar|"
+        r"gstreamer|kubernetes|k8s|openshift|jetson|mlops|fastapi|"
+        r"tflite|litert|yocto|android|java)\b"
     )
     for m in re.finditer(tech_re, job_description, re.IGNORECASE):
-        terms.add(m.group())
+        found.append((m.start(), m.group()))
 
-    # Filter noise
-    terms = {t for t in terms if t.lower() not in _NOISE_TERMS and len(t) >= 2}
-    return list(terms)
+    # Keep the first spelling of each term, in order of appearance, without noise
+    terms: list[str] = []
+    seen: set[str] = set()
+    for _, term in sorted(found):
+        key = term.lower()
+        if key in seen or key in _NOISE_TERMS or len(term) < 2:
+            continue
+        seen.add(key)
+        terms.append(term)
+    return terms
 
 
 def build_job_queries(job_description: str) -> list[str]:
@@ -100,18 +119,27 @@ def get_matching_context(job_description: str) -> dict:
     # Targeted queries extracted from the job description
     job_queries = build_job_queries(job_description)
 
-    all_context = []
-    all_sources = set()
-    seen_chunks: set[str] = set()
+    # Search only in the job description's language (FR and EN documents say the same thing)
+    lang = detect_language(job_description)
 
-    for q in profile_queries + job_queries:
-        result = retrieve_context(q)
-        if result["context"] and result["context"] not in seen_chunks:
-            seen_chunks.add(result["context"])
-            all_context.append(result["context"])
+    kept_chunks: list[str] = []
+    all_sources = set()
+    total_chars = 0
+
+    # Targeted queries first, so the generic ones are the ones cut when the profile is full
+    for q in job_queries + profile_queries:
+        result = retrieve_context(q, lang=lang)
+        added = False
+        for chunk in result["context"].split("\n\n"):
+            if not chunk or chunk in kept_chunks or total_chars + len(chunk) > MAX_PROFILE_CHARS:
+                continue
+            kept_chunks.append(chunk)
+            total_chars += len(chunk)
+            added = True
+        if added:
             all_sources.update(result["sources"])
 
-    profile_context = "\n\n".join(all_context)
+    profile_context = "\n\n".join(kept_chunks)
 
     context = f"""[Job Matching — Profile vs Job Description Analysis]
 

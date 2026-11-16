@@ -6,7 +6,12 @@ import pytest
 
 from app.services.github import format_repos_context
 from app.services.contact import get_contact_context
-from app.services.matching import is_job_matching_query
+from app.services.matching import (
+    MAX_PROFILE_CHARS,
+    extract_job_terms,
+    get_matching_context,
+    is_job_matching_query,
+)
 from app.services.agent import is_github_query, is_contact_query, resolve_query
 
 
@@ -138,6 +143,10 @@ class TestIsContactQuery:
     def test_not_contact(self):
         assert is_contact_query("quelle est son expérience ?") is False
 
+    def test_describe_is_not_contact(self):
+        # "décrire" contains "écrire", a contact keyword
+        assert is_contact_query("peux-tu décrire son parcours ?") is False
+
 
 # --- Contact context ---
 
@@ -189,6 +198,17 @@ class TestIsJobMatchingQuery:
         assert is_job_matching_query("poste CDI") is False
 
 
+class TestExtractJobTerms:
+    def test_mixed_case_and_symbol_terms(self):
+        terms = extract_job_terms("Pipelines GStreamer, culture MLOps, Python et C++, déploiement Kubernetes")
+        for expected in ("GStreamer", "MLOps", "Python", "C++", "Kubernetes"):
+            assert expected in terms
+
+    def test_order_of_appearance_without_duplicates(self):
+        terms = extract_job_terms("CUDA puis Docker, encore docker et CUDA, en CDI")
+        assert terms == ["CUDA", "Docker"]
+
+
 # --- Job matching in agent ---
 
 
@@ -204,3 +224,28 @@ class TestResolveJobMatching:
         assert "Job Matching" in result["context"]
         assert "JOB DESCRIPTION TO ANALYZE" in result["context"]
         assert "NARYMANE'S PROFILE" in result["context"]
+
+    @patch("app.services.matching.retrieve_context")
+    def test_matching_dedupes_chunks_in_job_language(self, mock_rag):
+        mock_rag.return_value = {
+            "context": "[cv] Profil > Langages\n- C, Python\n\n[experience] OneAccess\n- 13 ans",
+            "sources": ["cv/profile.md"],
+        }
+        jd = """Nous recherchons un ingénieur Linux embarqué en CDI.
+        Compétences requises : C, Linux, Yocto, drivers.
+        Missions : développement firmware, intégration BSP."""
+        result = get_matching_context(jd)
+        profile = result["context"].split("NARYMANE'S PROFILE:")[1].split("JOB DESCRIPTION TO ANALYZE")[0]
+        assert profile.count("[cv] Profil > Langages") == 1
+        assert all(call.kwargs["lang"] == "fr" for call in mock_rag.call_args_list)
+
+    @patch("app.services.matching.retrieve_context")
+    def test_matching_profile_is_capped(self, mock_rag):
+        mock_rag.side_effect = lambda q, lang=None: {"context": f"[cv] {q}\n" + "x" * 3000, "sources": []}
+        jd = """We are looking for an Edge AI engineer. Requirements: Python, CUDA, TensorRT, Docker.
+        Responsibilities: deploy YOLO models on Jetson. Nice to have: Kubernetes."""
+        result = get_matching_context(jd)
+        profile = result["context"].split("NARYMANE'S PROFILE:")[1].split("JOB DESCRIPTION TO ANALYZE")[0]
+        chunks = [c for c in profile.split("\n\n") if c.startswith("[cv]")]
+        assert sum(len(c) for c in chunks) <= MAX_PROFILE_CHARS
+

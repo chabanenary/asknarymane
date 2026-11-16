@@ -8,7 +8,9 @@ from app.config import settings
 from app.services.embeddings import get_embedding_function
 
 COLLECTION_NAME = "narymane_profile"
-MAX_DISTANCE = 1.2
+# all-MiniLM-L6-v2 (prod) puts relevant chunks around 1.25-1.3, so 1.2 dropped most of them.
+# nomic-embed-text (dev) keeps the original threshold, which has not been re-measured.
+MAX_DISTANCE = 1.5 if settings.embedding_provider == "default" else 1.2
 FETCH_COUNT = 12  # Fetch more, then re-rank and keep best
 RETURN_COUNT = 5  # Final number of chunks to send to LLM
 
@@ -71,12 +73,23 @@ CATEGORY_KEYWORDS = {
 }
 
 
+def contains_keyword(text: str, keyword: str) -> bool:
+    """Match a keyword at the start of a word: "projet" matches "projets", "écrire" doesn't match "décrire".
+
+    Keywords of 2 letters or less (ia, ai, cv) must be whole words, so "fait" doesn't match "ai".
+    """
+    pattern = rf"\b{re.escape(keyword)}"
+    if len(keyword) <= 2:
+        pattern += r"\b"
+    return re.search(pattern, text) is not None
+
+
 def detect_categories(query: str) -> list[str]:
     """Detect relevant categories from the query."""
     query_lower = query.lower()
     matched = []
     for category, keywords in CATEGORY_KEYWORDS.items():
-        if any(kw in query_lower for kw in keywords):
+        if any(contains_keyword(query_lower, kw) for kw in keywords):
             matched.append(category)
     return matched
 
@@ -178,56 +191,27 @@ def get_collection():
     return client.get_collection(**kwargs)
 
 
-# --- Main retrieve ---
+def _combine_filters(*filters: dict | None) -> dict | None:
+    """Combine ChromaDB where filters with $and, ignoring empty ones."""
+    active = [f for f in filters if f]
+    if not active:
+        return None
+    if len(active) == 1:
+        return active[0]
+    return {"$and": active}
 
-def retrieve_context(query: str) -> dict:
-    """Full RAG retrieval pipeline with dedup, re-ranking, and compression."""
 
-    # 1. Check cache
-    cache_key = hashlib.md5(query.lower().strip().encode()).hexdigest()
-    if cache_key in _cache:
-        entry = _cache[cache_key]
-        if time.time() - entry["time"] < CACHE_TTL:
-            return entry["result"]
-
-    # 2. Detect language
-    lang = detect_language(query)
-
-    # 3. Detect categories
-    categories = detect_categories(query)
-
-    # 4. Search ChromaDB (fetch more than needed)
-    collection = get_collection()
-
-    where_filter = None
-    if categories:
-        if len(categories) == 1:
-            where_filter = {"category": categories[0]}
-        else:
-            where_filter = {"category": {"$in": categories}}
-
+def _search(collection, query: str, where_filter: dict | None) -> list[dict]:
+    """Query ChromaDB and keep only chunks within MAX_DISTANCE."""
     results = collection.query(
         query_texts=[query],
         n_results=FETCH_COUNT,
         where=where_filter,
         include=["documents", "metadatas", "distances"],
     )
-
-    # Fallback without category filter
     if not results["documents"] or not results["documents"][0]:
-        if where_filter:
-            results = collection.query(
-                query_texts=[query],
-                n_results=FETCH_COUNT,
-                include=["documents", "metadatas", "distances"],
-            )
+        return []
 
-    if not results["documents"] or not results["documents"][0]:
-        result = {"context": "", "sources": []}
-        _cache[cache_key] = {"result": result, "time": time.time()}
-        return result
-
-    # 5. Filter by distance
     candidates = []
     for doc, meta, dist in zip(
         results["documents"][0],
@@ -237,9 +221,55 @@ def retrieve_context(query: str) -> dict:
         if dist > MAX_DISTANCE:
             continue
         candidates.append({"text": doc, "meta": meta, "dist": dist})
+    return candidates
+
+
+# --- Main retrieve ---
+
+def retrieve_context(query: str, lang: str | None = None) -> dict:
+    """Full RAG retrieval pipeline with dedup, re-ranking, and compression.
+
+    lang: "fr" or "en" to search only that language's documents; both by default.
+    """
+
+    # 1. Check cache
+    cache_key = hashlib.md5(f"{lang}|{query.lower().strip()}".encode()).hexdigest()
+    if cache_key in _cache:
+        entry = _cache[cache_key]
+        if time.time() - entry["time"] < CACHE_TTL:
+            return entry["result"]
+
+    # 2. Detect language
+    preferred_lang = lang or detect_language(query)
+
+    # 3. Detect categories
+    categories = detect_categories(query)
+
+    # 4. Search ChromaDB (fetch more than needed)
+    collection = get_collection()
+
+    category_filter = None
+    if categories:
+        if len(categories) == 1:
+            category_filter = {"category": categories[0]}
+        else:
+            category_filter = {"category": {"$in": categories}}
+    lang_filter = {"lang": lang} if lang else None
+
+    # 5. Search and filter by distance
+    candidates = _search(collection, query, _combine_filters(category_filter, lang_filter))
+
+    # Fallback without category filter when nothing close enough was found in the detected categories
+    if not candidates and category_filter:
+        candidates = _search(collection, query, lang_filter)
+
+    if not candidates:
+        result = {"context": "", "sources": []}
+        _cache[cache_key] = {"result": result, "time": time.time()}
+        return result
 
     # 6. Deduplicate FR/EN
-    candidates = deduplicate(candidates, preferred_lang=lang)
+    candidates = deduplicate(candidates, preferred_lang=preferred_lang)
 
     # 7. Re-rank by keyword overlap + distance
     for c in candidates:

@@ -1,6 +1,6 @@
 """Agent router — decides which data sources to query based on the user's question."""
 
-from app.services.rag import retrieve_context
+from app.services.rag import contains_keyword, retrieve_context
 from app.services.github import get_github_context
 from app.services.contact import get_contact_context
 from app.services.matching import is_job_matching_query, get_matching_context
@@ -37,19 +37,19 @@ CONTACT_KEYWORDS = [
 def is_cv_query(query: str) -> bool:
     """Detect if the user is asking for a downloadable CV."""
     query_lower = query.lower()
-    return any(kw in query_lower for kw in CV_KEYWORDS)
+    return any(contains_keyword(query_lower, kw) for kw in CV_KEYWORDS)
 
 
 def is_github_query(query: str) -> bool:
     """Detect if the query is about GitHub."""
     query_lower = query.lower()
-    return any(kw in query_lower for kw in GITHUB_KEYWORDS)
+    return any(contains_keyword(query_lower, kw) for kw in GITHUB_KEYWORDS)
 
 
 def is_contact_query(query: str) -> bool:
     """Detect if the query is about contacting Narymane."""
     query_lower = query.lower()
-    return any(kw in query_lower for kw in CONTACT_KEYWORDS)
+    return any(contains_keyword(query_lower, kw) for kw in CONTACT_KEYWORDS)
 
 
 def resolve_query(query: str) -> dict:
