@@ -17,7 +17,8 @@ In one sentence: AskNarymane relies on 5 specialized agents (RAG, GitHub, contac
 ## The Router: the Conductor
 - Role: decide which agents to call on for each question
 - How it works: it looks for keywords in the question, in French and English ("github", "contact", "cv", "job description"…). No AI makes this decision: it is a list of rules, so it is fast, free and predictable
-- If the question contains a word that refers back to the conversation ("ça", "cela", "this", "that"…) and there have already been exchanges, it adds the 2 previous messages to the search to understand it better
+- It recognizes keywords at the start of a word: "projet" matches "projets", but "écrire" does not match "décrire"; 2-letter keywords ("ia", "ai", "cv") must be whole words
+- Just before it, the server enriches the question: if it contains a word that refers back to the conversation ("ça", "cela", "this", "that"…) and there have already been exchanges, it adds the 2 previous messages
 - The matching agent takes priority: when it triggers, it works alone
 - The RAG agent is called on for every question, except a pure contact request
 - Model call: none. The LLM does not call tools itself: deterministic routing is a deliberate choice for reliability and cost
@@ -26,7 +27,7 @@ In one sentence: AskNarymane relies on 5 specialized agents (RAG, GitHub, contac
 - Role: find the passages of the profile that answer the question
 - Step 1: detection of the question's language (French or English) and topic (experience, education, projects, CV, blog)
 - Step 2: the question is turned into a vector by the embedding model
-- Step 3: search for the 12 closest passages in ChromaDB, filtered by topic; if the filter returns nothing, a new search without the filter
+- Step 3: search for the 12 closest passages in ChromaDB, filtered by topic; if nothing close enough is found in those topics, a new search without the filter
 - Step 4: passages that are too distant are discarded; when a passage exists in both French and English, only the language of the question is kept
 - Step 5: re-ranking by words shared with the question, presence of known names (companies, schools, projects) and distance; the best 5 are kept and the longest are shortened
 - The result is kept in memory for 5 minutes for identical questions
@@ -46,7 +47,8 @@ In one sentence: AskNarymane relies on 5 specialized agents (RAG, GitHub, contac
 ## Agent 4 — Job Description Matching
 - Role: assess whether Narymane's profile fits a position
 - Detection: the recruiter pasted a job description (at least 3 typical words such as "missions" or "requirements", or a long text containing at least one of them)
-- How it works: extraction of the technical terms of the offer (Python, CUDA, Kubernetes…), then up to 8 searches in the profile (4 general ones and up to 4 targeted at those terms)
+- How it works: extraction of the technical terms of the offer, in order of appearance (Python, C++, CUDA, GStreamer, MLOps, Kubernetes…), then up to 8 searches in the profile: first up to 4 targeted at those terms, then 4 general ones
+- Searches run only in the language of the offer; duplicate passages are dropped and the profile sent is capped at about 3,000 tokens, to stay under the Groq limit (8,000 tokens per minute)
 - It prepares an instruction for a 5-point report: compatibility score, strengths, transferable skills, gaps, recommendation, with the instruction not to inflate the score
 - Model call: to the embedding model for each search; the LLM writes the report during the final call
 

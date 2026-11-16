@@ -42,14 +42,14 @@ Le point clé : **le LLM n'est appelé qu'une seule fois par question, à la tou
 
 ## Le routeur et les 5 agents
 
-**Le routeur** cherche des mots-clés dans la question, en français et en anglais (« github », « contact », « cv », « fiche de poste »…), et décide quels agents solliciter. Ce n'est pas une IA qui décide, c'est une liste de règles.
+**Le routeur** cherche des mots-clés dans la question, en français et en anglais (« github », « contact », « cv », « fiche de poste »…), et décide quels agents solliciter. Ce n'est pas une IA qui décide, c'est une liste de règles. Les mots-clés sont reconnus en début de mot : « projet » reconnaît « projets », mais « écrire » ne reconnaît pas « décrire ».
 
 | Agent | Ce qu'il fait | Appelle un modèle ? |
 |---|---|---|
 | **Agent 1 — RAG** (profil) | Cherche dans le profil les 5 passages les plus proches de la question | Oui, le **modèle d'embeddings** (pas le LLM) |
 | **Agent 2 — GitHub** | Liste les dépôts publics de [chabanenary](https://github.com/chabanenary) via l'API GitHub (cache de 10 min) | Non |
 | **Agent 3 — Contact** | Fournit un lien email avec un brouillon pré-rempli et le lien LinkedIn | Non |
-| **Agent 4 — Matching** | Détecte une fiche de poste, en extrait les termes techniques et lance jusqu'à 8 recherches dans le profil. Le LLM rédige ensuite le rapport. | Oui, le **modèle d'embeddings** pour les recherches |
+| **Agent 4 — Matching** | Détecte une fiche de poste, en extrait les termes techniques et lance jusqu'à 8 recherches dans le profil, dans la langue de l'offre. Le profil envoyé est limité à environ 3 000 tokens. Le LLM rédige ensuite le rapport. | Oui, le **modèle d'embeddings** pour les recherches |
 | **Agent 5 — CV** | Ajoute un lien de téléchargement du CV en PDF, dans la langue de la question | Non |
 
 Quand une fiche de poste est détectée, l'agent matching passe en priorité et travaille seul.
@@ -58,7 +58,7 @@ Quand une fiche de poste est détectée, l'agent matching passe en priorité et 
 
 1. Le serveur détecte la **langue** de la question (FR/EN) et son **thème** (expérience, formation, projets, CV, blog).
 2. Le **modèle d'embeddings** transforme la question en vecteur.
-3. **ChromaDB** renvoie les 12 passages les plus proches, filtrés par thème.
+3. **ChromaDB** renvoie les 12 passages les plus proches, filtrés par thème. Si rien d'assez proche n'est trouvé, il cherche à nouveau sans filtre.
 4. Le serveur écarte les passages trop éloignés et garde une seule langue quand un passage existe en FR et en EN.
 5. Il **reclasse** le reste selon les mots en commun, la présence de noms connus (entreprises, écoles, projets) et la distance.
 6. Il garde les **5 meilleurs** et raccourcit les plus longs.

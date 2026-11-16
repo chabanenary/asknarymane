@@ -17,7 +17,8 @@ En une phrase : AskNarymane repose sur 5 agents spécialisés (RAG, GitHub, cont
 ## Le routeur : le chef d'orchestre
 - Rôle : décider quels agents solliciter pour chaque question
 - Fonctionnement : il cherche des mots-clés dans la question, en français et en anglais (« github », « contact », « cv », « fiche de poste »…). Ce n'est pas une IA qui décide : c'est une liste de règles, donc rapide, gratuite et prévisible
-- Si la question contient un mot qui renvoie à ce qui précède (« ça », « cela », « this », « that »…) et qu'il y a déjà eu des échanges, il ajoute les 2 messages précédents à la recherche pour mieux la comprendre
+- Il reconnaît les mots-clés en début de mot : « projet » reconnaît « projets », mais « écrire » ne reconnaît pas « décrire » ; les mots-clés de 2 lettres (« ia », « ai », « cv ») doivent être des mots entiers
+- Juste avant lui, le serveur enrichit la question : si elle contient un mot qui renvoie à ce qui précède (« ça », « cela », « this », « that »…) et qu'il y a déjà eu des échanges, il y ajoute les 2 messages précédents
 - L'agent matching est prioritaire : quand il se déclenche, il travaille seul
 - L'agent RAG est sollicité pour toutes les questions, sauf une demande de contact pure
 - Appel au modèle : aucun. Le LLM ne fait pas d'appel d'outils lui-même : le routage déterministe est un choix assumé pour la fiabilité et le coût
@@ -26,7 +27,7 @@ En une phrase : AskNarymane repose sur 5 agents spécialisés (RAG, GitHub, cont
 - Rôle : retrouver les passages du profil qui répondent à la question
 - Étape 1 : détection de la langue de la question (français ou anglais) et de son thème (expérience, formation, projets, CV, blog)
 - Étape 2 : la question est transformée en vecteur par le modèle d'embeddings
-- Étape 3 : recherche des 12 passages les plus proches dans ChromaDB, filtrés par thème ; si le filtre ne donne rien, nouvelle recherche sans filtre
+- Étape 3 : recherche des 12 passages les plus proches dans ChromaDB, filtrés par thème ; si rien d'assez proche n'est trouvé dans ces thèmes, nouvelle recherche sans filtre
 - Étape 4 : les passages trop éloignés sont écartés ; quand un passage existe en français et en anglais, seule la langue de la question est gardée
 - Étape 5 : reclassement selon les mots en commun avec la question, la présence de noms connus (entreprises, écoles, projets) et la distance ; les 5 meilleurs sont conservés et les plus longs sont raccourcis
 - Le résultat est gardé 5 minutes en mémoire pour les questions identiques
@@ -46,7 +47,8 @@ En une phrase : AskNarymane repose sur 5 agents spécialisés (RAG, GitHub, cont
 ## Agent 4 — Matching avec une fiche de poste
 - Rôle : évaluer si le profil de Narymane correspond à un poste
 - Détection : le recruteur a collé une fiche de poste (au moins 3 mots typiques comme « missions » ou « requirements », ou un texte long contenant au moins l'un d'eux)
-- Fonctionnement : extraction des termes techniques de l'offre (Python, CUDA, Kubernetes…), puis jusqu'à 8 recherches dans le profil (4 générales et jusqu'à 4 ciblées sur ces termes)
+- Fonctionnement : extraction des termes techniques de l'offre, dans leur ordre d'apparition (Python, C++, CUDA, GStreamer, MLOps, Kubernetes…), puis jusqu'à 8 recherches dans le profil : d'abord jusqu'à 4 ciblées sur ces termes, puis 4 générales
+- Les recherches se font uniquement dans la langue de l'offre ; les passages en double sont écartés et le profil envoyé est limité à environ 3 000 tokens, pour rester sous la limite de Groq (8 000 tokens par minute)
 - Il prépare une consigne pour un rapport en 5 points : score de compatibilité, points forts, compétences transférables, écarts, recommandation, avec l'instruction de ne pas gonfler le score
 - Appel au modèle : au modèle d'embeddings pour chaque recherche ; c'est le LLM qui rédige le rapport, lors de l'appel final
 
